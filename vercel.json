@@ -1,6 +1,6 @@
 {
-  "buildCommand": "bash vercel-build.sh",
-  "outputDirectory": "build/web",
+  "buildCommand": "cd inventrax_erp && bash vercel-build.sh",
+  "outputDirectory": "inventrax_erp/build/web",
   "installCommand": "echo skip",
   "framework": null,
   "rewrites": [
