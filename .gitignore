@@ -1,0 +1,32 @@
+# Secrets — never commit
+.env
+.env.local
+.env.*.local
+**/.env
+!**/.env.secrets.example
+!**/.env.example
+
+# Supabase CLI temp
+**/.temp/
+
+# Flutter / Dart
+**/.dart_tool/
+**/.pub/
+**/.pub-cache/
+**/build/
+**/coverage/
+**/.flutter-plugins-dependencies
+
+# Sentry / tooling
+.sentryclirc
+sentry-wizard.exe
+sentry.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
