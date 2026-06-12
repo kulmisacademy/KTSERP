@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/ux/responsive.dart';
 import '../../../core/store_context.dart';
 import '../../../ui/components/app_button.dart';
 import '../../../ui/components/app_card.dart';
@@ -18,8 +19,7 @@ class UsersManagementPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final users = ref.watch(storeUsersProvider);
-    final width = MediaQuery.sizeOf(context).width;
-    final isMobile = width < 700;
+    final isMobile = Responsive.isMobile(context);
     final canManage = StoreContext.can(AppPermission.usersManage);
 
     return AppShell(
@@ -50,7 +50,7 @@ class UsersManagementPage extends ConsumerWidget {
           }
           if (isMobile) {
             return ListView.separated(
-              padding: const EdgeInsets.all(16),
+              padding: Responsive.pagePadding(context),
               itemCount: list.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (_, i) => _UserCard(user: list[i], canManage: canManage),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../ux/responsive.dart';
+
 /// 4pt / 8pt spacing scale — use everywhere for visual consistency.
 abstract final class AppSpacing {
   static const double xxs = 4;
@@ -32,6 +34,8 @@ abstract final class AppSpacing {
   static SizedBox gapMd() => const SizedBox(height: md, width: md);
   static SizedBox gapLg() => const SizedBox(height: lg, width: lg);
   static SizedBox gapXl() => const SizedBox(height: xl, width: xl);
+
+  static EdgeInsets pageOf(BuildContext context) => Responsive.pagePadding(context);
 
   static EdgeInsets only({double top = 0, double right = 0, double bottom = 0, double left = 0}) =>
       EdgeInsets.only(top: top, right: right, bottom: bottom, left: left);

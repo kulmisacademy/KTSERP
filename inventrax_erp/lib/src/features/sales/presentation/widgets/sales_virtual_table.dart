@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/l10n/erp_l10n.dart';
 import '../../../../core/l10n/l10n_extension.dart';
+import '../../../../core/ux/responsive.dart';
 import '../../../../core/design/design_system.dart';
 import '../../../../data/local/sales_search.dart';
 import '../../../../data/local/store_settings_provider.dart';
@@ -35,7 +36,7 @@ class SalesVirtualTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isWide = MediaQuery.sizeOf(context).width >= 900;
+    final isWide = Responsive.isDesktop(context);
     if (!isWide) {
       return _SalesCardList(
         items: items,

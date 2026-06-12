@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/env_config.dart';
 import '../../../core/design/design_system.dart';
+import '../../../core/ux/responsive.dart';
+import '../../../core/ux/responsive_page.dart';
 import '../../../core/l10n/l10n_extension.dart';
 import '../../../core/l10n/locale_provider.dart';
 import 'package:inventrax_erp/l10n/app_localizations.dart';
@@ -49,8 +51,7 @@ class PlatformShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(appLocaleProvider);
     final loc = GoRouterState.of(context).matchedLocation;
-    final width = MediaQuery.sizeOf(context).width;
-    final isWide = width >= 960;
+    final isDesktop = Responsive.isDesktop(context);
     final alertCount = ref.watch(platformAnalyticsProvider).maybeWhen(
           data: (a) => a?.alerts.length ?? 0,
           orElse: () => 0,
@@ -64,29 +65,32 @@ class PlatformShell extends ConsumerWidget {
         backgroundColor: AppColors.bgLight,
         body: Row(
           children: [
-            if (isWide) _SidebarPanel(loc: loc, alertCount: alertCount),
+            if (isDesktop) _SidebarPanel(loc: loc, alertCount: alertCount),
             Expanded(
               child: Column(
                 children: [
                   _TopBar(
-                    isWide: isWide,
+                    isDesktop: isDesktop,
                     loc: loc,
                     alertCount: alertCount,
-                    onMenu: isWide ? null : () => Scaffold.of(context).openDrawer(),
+                    onMenu: isDesktop ? null : () => Scaffold.of(context).openDrawer(),
                   ),
                   Expanded(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppColors.bgLight,
-                        border: Border(
-                          left: isWide
-                              ? BorderSide(
-                                  color: AppColors.borderLight.withValues(alpha: 0.8),
-                                )
-                              : BorderSide.none,
+                    child: SafeArea(
+                      top: false,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: AppColors.bgLight,
+                          border: Border(
+                            left: isDesktop
+                                ? BorderSide(
+                                    color: AppColors.borderLight.withValues(alpha: 0.8),
+                                  )
+                                : BorderSide.none,
+                          ),
                         ),
+                        child: child,
                       ),
-                      child: child,
                     ),
                   ),
                 ],
@@ -94,7 +98,7 @@ class PlatformShell extends ConsumerWidget {
             ),
           ],
         ),
-        drawer: isWide
+        drawer: isDesktop
             ? null
             : Drawer(
                 backgroundColor: PlatformColors.sidebar,
@@ -107,13 +111,13 @@ class PlatformShell extends ConsumerWidget {
 
 class _TopBar extends StatelessWidget {
   const _TopBar({
-    required this.isWide,
+    required this.isDesktop,
     required this.loc,
     required this.alertCount,
     this.onMenu,
   });
 
-  final bool isWide;
+  final bool isDesktop;
   final String loc;
   final int alertCount;
   final VoidCallback? onMenu;
@@ -122,6 +126,7 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final pageTitle = _titleForRoute(l10n, loc);
+    final hInset = Responsive.pageInset(context);
     return Material(
       color: Colors.white,
       elevation: 0,
@@ -133,10 +138,12 @@ class _TopBar extends StatelessWidget {
         child: SafeArea(
           bottom: false,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+            padding: EdgeInsets.symmetric(horizontal: hInset, vertical: AppSpacing.sm),
             child: Row(
               children: [
-                if (onMenu != null)
+                if (responsiveMobileBackLeading(context) != null)
+                  responsiveMobileBackLeading(context)!
+                else if (onMenu != null)
                   IconButton(icon: const Icon(Icons.menu), onPressed: onMenu),
                 Expanded(
                   child: Column(
@@ -146,59 +153,65 @@ class _TopBar extends StatelessWidget {
                         pageTitle,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.w800,
+                              fontSize: Responsive.titleFontSize(context, desktop: 22),
                             ),
                       ),
-                      Text(
-                        l10n.platformCommandCenter,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textTertiaryLight,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Alerts',
-                  onPressed: () => context.go('/platform/alerts'),
-                  icon: Badge(
-                    isLabelVisible: alertCount > 0,
-                    label: Text('$alertCount'),
-                    child: const Icon(Icons.notifications_outlined),
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Search',
-                  icon: const Icon(Icons.search),
-                  onPressed: () => context.go('/platform/search'),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.08),
-                    borderRadius: AppRadius.pillAll,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.verified_user, size: 16, color: AppColors.primary),
-                      const SizedBox(width: 6),
-                      Text(
-                        StoreContext.displayName ?? 'Super Admin',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
-                          fontSize: 13,
+                      if (isDesktop)
+                        Text(
+                          l10n.platformCommandCenter,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.textTertiaryLight,
+                              ),
                         ),
-                      ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                if (!Responsive.isMobile(context)) ...[
+                  IconButton(
+                    tooltip: 'Alerts',
+                    onPressed: () => context.go('/platform/alerts'),
+                    icon: Badge(
+                      isLabelVisible: alertCount > 0,
+                      label: Text('$alertCount'),
+                      child: const Icon(Icons.notifications_outlined),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Search',
+                    icon: const Icon(Icons.search),
+                    onPressed: () => context.go('/platform/search'),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.08),
+                      borderRadius: AppRadius.pillAll,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.verified_user, size: 16, color: AppColors.primary),
+                        const SizedBox(width: 6),
+                        Text(
+                          StoreContext.displayName ?? 'Super Admin',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
                 OutlinedButton.icon(
                   onPressed: () => context.go('/dashboard'),
                   icon: const Icon(Icons.store_outlined, size: 18),
-                  label: Text(l10n.platformStoreApp),
+                  label: Responsive.isMobile(context)
+                      ? const SizedBox.shrink()
+                      : Text(l10n.platformStoreApp),
                 ),
               ],
             ),

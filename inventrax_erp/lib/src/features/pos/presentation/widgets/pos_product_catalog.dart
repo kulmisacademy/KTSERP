@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/design/design_system.dart';
+import '../../../../core/ux/responsive.dart';
 import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../data/local/app_database.dart';
 import '../../../../data/local/store_settings_provider.dart';
@@ -90,12 +91,7 @@ class PosProductCatalog extends ConsumerWidget {
 
               return LayoutBuilder(
                 builder: (context, constraints) {
-                  final width = constraints.maxWidth;
-                  final crossAxisCount = width >= 900
-                      ? 4
-                      : width >= 650
-                          ? 3
-                          : 2;
+                  final crossAxisCount = Responsive.gridCrossCount(context);
                   return GridView.builder(
                     padding: const EdgeInsets.only(bottom: 12),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

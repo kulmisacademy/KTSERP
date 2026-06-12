@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/l10n_extension.dart';
+import '../../../core/ux/responsive.dart';
 import '../application/subscription_lock_provider.dart';
 
 /// Shown when subscription/trial is past grace — billing-only access.
@@ -21,7 +22,7 @@ class SubscriptionExpiredPage extends ConsumerWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
             child: Padding(
-              padding: const EdgeInsets.all(32),
+              padding: Responsive.pagePadding(context),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

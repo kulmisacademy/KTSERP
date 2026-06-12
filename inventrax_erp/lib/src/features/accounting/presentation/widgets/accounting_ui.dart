@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/app_theme.dart';
+import '../../../../core/ux/responsive.dart';
 import '../../../../ui/components/app_card.dart';
 
 /// Standard scroll body padding for accounting pages.
@@ -8,16 +9,16 @@ class AccountingPageBody extends StatelessWidget {
   const AccountingPageBody({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.fromLTRB(20, 20, 20, 28),
+    this.padding,
   });
 
   final Widget child;
-  final EdgeInsets padding;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: padding,
+      padding: padding ?? Responsive.pagePadding(context),
       child: child,
     );
   }
@@ -126,7 +127,7 @@ class AccountingEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: Responsive.pagePadding(context),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/design/design_system.dart';
+import '../../../core/ux/responsive.dart';
 import '../../../core/ux/user_friendly_error.dart';
 import '../../../core/l10n/l10n_extension.dart';
 import '../../../core/store_context.dart';
@@ -587,8 +588,7 @@ class _PosPageState extends ConsumerState<PosPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(posControllerProvider);
     final tax = ref.watch(posTaxProvider);
-    final width = MediaQuery.sizeOf(context).width;
-    final isWide = width >= 1024;
+    final isMobilePos = Responsive.isMobile(context);
     final l10n = context.l10n;
 
     return AppShell(
@@ -604,7 +604,7 @@ class _PosPageState extends ConsumerState<PosPage> {
             child: const Icon(Icons.pause_circle_outline),
           ),
         ),
-        if (!isWide)
+        if (isMobilePos)
           TextButton.icon(
             onPressed: _openMobileCart,
             icon: Badge(
@@ -671,8 +671,19 @@ class _PosPageState extends ConsumerState<PosPage> {
                   ),
                 ),
                 Expanded(
-                  child: isWide
-                      ? Row(
+                  child: isMobilePos
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: PosProductCatalog(
+                            onProductTap: (p) {
+                              ref
+                                  .read(posControllerProvider.notifier)
+                                  .addProductToCart(p);
+                              HapticFeedback.selectionClick();
+                            },
+                          ),
+                        )
+                      : Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Expanded(
@@ -702,20 +713,9 @@ class _PosPageState extends ConsumerState<PosPage> {
                               ),
                             ),
                           ],
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: PosProductCatalog(
-                            onProductTap: (p) {
-                              ref
-                                  .read(posControllerProvider.notifier)
-                                  .addProductToCart(p);
-                              HapticFeedback.selectionClick();
-                            },
-                          ),
                         ),
                 ),
-                if (!isWide)
+                if (isMobilePos)
                   SafeArea(
                     top: false,
                     child: Padding(
@@ -754,7 +754,7 @@ class _PosPageState extends ConsumerState<PosPage> {
           ),
         ),
       ),
-          if (!isWide)
+          if (isMobilePos)
             Positioned(
               right: 20,
               bottom: 88,

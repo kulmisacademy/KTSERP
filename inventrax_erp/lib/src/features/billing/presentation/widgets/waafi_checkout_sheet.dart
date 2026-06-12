@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
+import '../../../../core/ux/responsive_dialogs.dart';
 import '../../../auth/application/registration_validator.dart';
 import '../../application/billing_providers.dart';
 import '../../application/subscription_lock_provider.dart';
@@ -27,15 +28,11 @@ class WaafiCheckoutSheet extends ConsumerStatefulWidget {
     required String amountLabel,
     required Future<PaymentResult> Function(String payerPhone) onInitiatePayment,
   }) {
-    return showModalBottomSheet<PaymentResult>(
+    return showAppBottomSheet<PaymentResult>(
       context: context,
-      isScrollControlled: true,
       isDismissible: false,
       enableDrag: false,
-      useSafeArea: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      showDragHandle: false,
       builder: (ctx) => WaafiCheckoutSheet(
         title: title,
         amountLabel: amountLabel,

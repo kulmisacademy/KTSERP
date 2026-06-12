@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/design/design_system.dart';
+import '../../core/ux/responsive.dart';
 
 /// Enterprise table shell: sticky header, consistent row height, hover.
 class AppDataTable extends StatelessWidget {
@@ -21,6 +22,13 @@ class AppDataTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Responsive.isMobile(context)) {
+      return _MobileCardList(
+        columns: columns,
+        rows: rows,
+      );
+    }
+
     final theme = Theme.of(context);
     final border = AppColors.border(theme.brightness);
 
@@ -114,4 +122,76 @@ class AppDataRow {
   const AppDataRow({required this.cells, this.onTap});
   final List<Widget> cells;
   final VoidCallback? onTap;
+}
+
+class _MobileCardList extends StatelessWidget {
+  const _MobileCardList({
+    required this.columns,
+    required this.rows,
+  });
+
+  final List<AppDataColumn> columns;
+  final List<AppDataRow> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    if (rows.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: rows.length,
+      separatorBuilder: (_, __) => AppSpacing.gapSm(),
+      itemBuilder: (context, index) {
+        final row = rows[index];
+        return Material(
+          color: theme.cardTheme.color ?? theme.colorScheme.surface,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: AppRadius.mdAll,
+            side: BorderSide(color: AppColors.border(theme.brightness)),
+          ),
+          child: InkWell(
+            onTap: row.onTap,
+            borderRadius: AppRadius.mdAll,
+            child: Padding(
+              padding: Responsive.pagePadding(context),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < columns.length && i < row.cells.length; i++)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              columns[i].label,
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: DefaultTextStyle(
+                              style: theme.textTheme.bodyMedium!,
+                              child: row.cells[i],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

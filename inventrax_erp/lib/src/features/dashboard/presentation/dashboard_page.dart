@@ -46,8 +46,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       data: (k) => formatMoney(k.todaySalesCents, currency: currency),
       orElse: () => '—',
     );
-    final width = MediaQuery.sizeOf(context).width;
-    final isWide = width >= 1000;
+    final isWide = Responsive.isDesktop(context);
     final localeCode = Localizations.localeOf(context).languageCode;
     final dateLabel =
         DateFormat.yMMMEd(localeCode).format(DateTime.now());
@@ -98,7 +97,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   data: (kpi) => _KpiGrid(
                     kpis: kpi,
                     currency: currency,
-                    crossAxisCount: width >= 1200 ? 4 : (width >= 700 ? 2 : 1),
+                    crossAxisCount: Responsive.isMobile(context)
+                        ? 1
+                        : (Responsive.isTablet(context) ? 2 : 4),
                     showFinancials: canReports,
                     showExpenses: canExpenses,
                   ),

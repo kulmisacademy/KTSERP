@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/l10n/acct_l10n.dart';
 import '../../../core/l10n/l10n_extension.dart';
 import '../../../core/l10n/locale_provider.dart';
+import '../../../core/ux/responsive.dart';
 import '../../../ui/layout/app_shell.dart';
 
 class AccountingShell extends ConsumerWidget {
@@ -44,8 +45,7 @@ class AccountingShell extends ConsumerWidget {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final location = GoRouterState.of(context).matchedLocation;
-    final width = MediaQuery.sizeOf(context).width;
-    final wide = width >= 1100;
+    final showSideNav = Responsive.isDesktop(context);
 
     final nav = Container(
       color: Theme.of(context).colorScheme.surface,
@@ -107,7 +107,7 @@ class AccountingShell extends ConsumerWidget {
       ),
     );
 
-    final body = wide
+    final body = showSideNav
         ? Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -119,7 +119,13 @@ class AccountingShell extends ConsumerWidget {
               Expanded(child: child),
             ],
           )
-        : child;
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _MobileAcctNavBar(location: location),
+              Expanded(child: child),
+            ],
+          );
 
     return AppShell(
       title: title,
@@ -232,4 +238,53 @@ class _AcctNav {
   const _AcctNav(this.icon, this.path);
   final IconData icon;
   final String path;
+}
+
+class _MobileAcctNavBar extends StatelessWidget {
+  const _MobileAcctNavBar({required this.location});
+
+  final String location;
+
+  static const _all = [
+    ...AccountingShell._primary,
+    ...AccountingShell._cash,
+    ...AccountingShell._reports,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: scheme.surfaceContainerHighest,
+      child: SafeArea(
+        bottom: false,
+        child: SizedBox(
+          height: 44,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: Responsive.pagePaddingHorizontal(context),
+            itemCount: _all.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (context, index) {
+              final item = _all[index];
+              final selected = location == item.path ||
+                  location.startsWith('${item.path}/');
+              final label = localizedAcctNavLabel(context.l10n, item.path);
+              return FilterChip(
+                selected: selected,
+                showCheckmark: false,
+                avatar: Icon(
+                  item.icon,
+                  size: 16,
+                  color: selected ? scheme.onPrimaryContainer : scheme.onSurfaceVariant,
+                ),
+                label: Text(label),
+                onSelected: (_) => context.go(item.path),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
 }

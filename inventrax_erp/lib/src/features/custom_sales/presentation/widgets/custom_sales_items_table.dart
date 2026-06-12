@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/ux/responsive.dart';
 import '../../../../data/local/store_settings_provider.dart';
 import '../../../sales/domain/invoice_discount.dart';
 import '../../application/custom_sales_controller.dart';
@@ -14,11 +15,11 @@ class CustomSalesItemsTable extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(customSalesControllerProvider);
     final currency = ref.watch(storeCurrencyProvider);
-    final isWide = MediaQuery.sizeOf(context).width >= 900;
+    final isWide = Responsive.isDesktop(context);
 
     if (state.lines.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(32),
+        padding: Responsive.pagePadding(context),
         alignment: Alignment.center,
         child: Text(
           'Search and add products to build your invoice',

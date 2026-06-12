@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventrax_erp/l10n/app_localizations.dart';
 
 import '../../../app/app_theme.dart';
-import '../../../core/l10n/l10n_extension.dart';
+import '../../../core/ux/responsive.dart';
 import '../../../core/ux/user_friendly_error.dart';
 import '../../../core/store/active_store_scope.dart';
 import '../../../core/store_context.dart';
@@ -173,8 +173,9 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
               ),
               error: (e, _) => Text(l10n.inventoryKpiError(e.toString())),
               data: (k) {
-                final width = MediaQuery.sizeOf(context).width;
-                final cols = width >= 1200 ? 3 : (width >= 760 ? 2 : 1);
+                final cols = Responsive.isMobile(context)
+                    ? 1
+                    : (Responsive.isTablet(context) ? 2 : 3);
                 return GridView(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: cols,
@@ -264,7 +265,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
           if (filtered.isEmpty) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(32),
+                padding: Responsive.pagePadding(context),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

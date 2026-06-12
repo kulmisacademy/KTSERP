@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/design/design_system.dart';
 import '../../core/design/inventrax_brand_theme.dart';
+import '../../core/ux/responsive.dart';
+import '../../core/ux/responsive_page.dart';
 import '../../core/ux/web_interaction.dart';
 import '../../core/l10n/l10n_extension.dart';
 import '../../core/l10n/locale_provider.dart';
@@ -76,8 +78,7 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final width = MediaQuery.sizeOf(context).width;
-    final isMobile = width < 840;
+    final isDrawerLayout = !Responsive.isDesktop(context);
     final collapsed = ref.watch(navCollapsedProvider);
     final l10n = context.l10n;
     final resolvedTitle = route != null
@@ -88,17 +89,25 @@ class AppShell extends ConsumerWidget {
     final content = _PageScaffold(
       actions: actions,
       fullBleed: fullBleed,
+      isDrawerLayout: isDrawerLayout,
       child: child,
     );
 
-    if (isMobile) {
+    if (isDrawerLayout) {
       return Scaffold(
         drawer: _NavDrawer(items: items),
         appBar: AppBar(
+          automaticallyImplyLeading: true,
+          leading: responsiveMobileBackLeading(context),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(resolvedTitle),
+              Text(
+                resolvedTitle,
+                style: TextStyle(
+                  fontSize: Responsive.titleFontSize(context, desktop: 20),
+                ),
+              ),
               if (subtitle != null)
                 Text(
                   subtitle!,
@@ -114,11 +123,14 @@ class AppShell extends ConsumerWidget {
             ...actions,
           ],
         ),
-        body: content,
+        body: SafeArea(
+          top: false,
+          child: content,
+        ),
       );
     }
 
-    // Desktop: sidebar shows active page — no duplicate title in AppBar.
+    // Desktop: persistent sidebar — no duplicate title in AppBar.
     return SizedBox.expand(
       child: Row(
         children: [
@@ -129,7 +141,7 @@ class AppShell extends ConsumerWidget {
           ),
           Expanded(
             child: Scaffold(
-              body: content,
+              body: SafeArea(child: content),
             ),
           ),
         ],
@@ -143,28 +155,34 @@ class _PageScaffold extends ConsumerWidget {
     required this.child,
     required this.actions,
     required this.fullBleed,
+    required this.isDrawerLayout,
   });
 
   final Widget child;
   final List<Widget> actions;
   final bool fullBleed;
+  final bool isDrawerLayout;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final topBar = Padding(
-      padding: EdgeInsets.fromLTRB(20, fullBleed ? 8 : 16, 20, 0),
-      child: SizedBox(
-        height: 36,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SyncStatusIndicator(),
-            const Spacer(),
-            ...actions,
-          ],
-        ),
-      ),
-    );
+    final inset = Responsive.pageInset(context);
+
+    final topBar = isDrawerLayout
+        ? null
+        : Padding(
+            padding: EdgeInsets.fromLTRB(inset, fullBleed ? 8 : 16, inset, 0),
+            child: SizedBox(
+              height: 36,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SyncStatusIndicator(),
+                  const Spacer(),
+                  ...actions,
+                ],
+              ),
+            ),
+          );
 
     if (fullBleed) {
       return Column(
@@ -173,7 +191,7 @@ class _PageScaffold extends ConsumerWidget {
           const ImpersonationBanner(),
           const CompactOfflineBanner(),
           const SubscriptionWarningBanner(),
-          topBar,
+          if (topBar != null) topBar,
           Expanded(child: child),
         ],
       );
@@ -187,10 +205,10 @@ class _PageScaffold extends ConsumerWidget {
           const ImpersonationBanner(),
           const CompactOfflineBanner(),
           const SubscriptionWarningBanner(),
-          topBar,
+          if (topBar != null) topBar,
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              padding: EdgeInsets.fromLTRB(inset, 12, inset, inset),
               child: child,
             ),
           ),
