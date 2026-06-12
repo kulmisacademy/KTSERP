@@ -79,7 +79,7 @@ jobs:
           fi
 
       - name: Install Vercel CLI
-        run: npm install -g vercel@39.6.0
+        run: npm install -g vercel@54.12.2
 
       - name: Deploy to Vercel production
         working-directory: inventrax_erp
