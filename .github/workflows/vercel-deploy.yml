@@ -56,9 +56,9 @@ jobs:
         run: |
           flutter pub get
           flutter build web --release --no-web-resources-cdn --no-wasm-dry-run --dart-define-from-file=.env
-          cp vercel.web.json build/web/vercel.json
           test -f build/web/index.html
           echo "Build size: $(du -sh build/web | cut -f1)"
+          ls -la build/web | head -15
 
       - name: Link Vercel project
         working-directory: inventrax_erp
@@ -78,13 +78,31 @@ jobs:
           fi
           cat .vercel/project.json
 
+      - name: Prepare Vercel deploy bundle
+        working-directory: inventrax_erp
+        run: |
+          mkdir -p build/web/.vercel
+          cp .vercel/project.json build/web/.vercel/project.json
+          cp vercel.web.json build/web/vercel.json
+          echo "Deploy bundle ready:"
+          ls -la build/web/.vercel
+          test -f build/web/index.html
+
       - name: Install Vercel CLI
         run: npm install -g vercel@54.12.2
 
       - name: Deploy to Vercel production
-        working-directory: inventrax_erp
+        working-directory: inventrax_erp/build/web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           unset VERCEL_ORG_ID VERCEL_PROJECT_ID
-          vercel deploy build/web --prod --yes --token "$VERCEL_TOKEN"
+          DEPLOY_URL="$(vercel deploy --prod --yes --token "$VERCEL_TOKEN" 2>&1 | tee /dev/stderr | tail -n 1)"
+          echo "deployment_url=$DEPLOY_URL"
+          echo "### Deployment" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Preview/production URL: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Custom domain: https://kulmiserp.vercel.app" >> "$GITHUB_STEP_SUMMARY"
+          if [[ ! "$DEPLOY_URL" == http* ]]; then
+            echo "::error::Vercel deploy did not return a URL: $DEPLOY_URL"
+            exit 1
+          fi
