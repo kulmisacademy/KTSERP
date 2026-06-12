@@ -1,0 +1,63 @@
+name: Deploy Web to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create .env for build
+        working-directory: inventrax_erp
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "Add SUPABASE_URL and SUPABASE_ANON_KEY to GitHub repository secrets."
+            exit 1
+          fi
+          cat > .env <<EOF
+          SUPABASE_URL=$SUPABASE_URL
+          SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
+          APP_NAME=InventraX ERP
+          APP_ENV=production
+          API_TIMEOUT=30000
+          ENABLE_LOGS=false
+          SENTRY_DSN=${SENTRY_DSN:-}
+          AI_USE_EDGE_PROXY=true
+          OPENAI_MODEL=gpt-4o-mini
+          EOF
+
+      - name: Build Flutter web
+        working-directory: inventrax_erp
+        run: |
+          flutter pub get
+          flutter build web --release --no-web-resources-cdn --no-wasm-dry-run --dart-define-from-file=.env
+          cp vercel.web.json build/web/vercel.json
+          test -f build/web/index.html
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: inventrax_erp/build/web
+          vercel-args: '--prod'
