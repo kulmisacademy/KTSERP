@@ -1,0 +1,86 @@
+# Flutter web → Vercel (NOT Next.js). Builds on GitHub, deploys static build/web.
+name: Vercel Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate GitHub secrets
+        run: |
+          missing=0
+          if [ -z "${{ secrets.SUPABASE_URL }}" ]; then echo "::error::Missing GitHub secret SUPABASE_URL"; missing=1; fi
+          if [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then echo "::error::Missing GitHub secret SUPABASE_ANON_KEY"; missing=1; fi
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then echo "::error::Missing GitHub secret VERCEL_TOKEN"; missing=1; fi
+          if [ "$missing" -eq 1 ]; then exit 1; fi
+          echo "Required secrets present."
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create production .env
+        working-directory: inventrax_erp
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          cat > .env <<EOF
+          SUPABASE_URL=$SUPABASE_URL
+          SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
+          APP_NAME=InventraX ERP
+          APP_ENV=production
+          API_TIMEOUT=30000
+          ENABLE_LOGS=false
+          SENTRY_DSN=${SENTRY_DSN:-}
+          AI_USE_EDGE_PROXY=true
+          OPENAI_MODEL=gpt-4o-mini
+          EOF
+
+      - name: Build Flutter web
+        working-directory: inventrax_erp
+        run: |
+          flutter pub get
+          flutter build web --release --no-web-resources-cdn --no-wasm-dry-run --dart-define-from-file=.env
+          cp vercel.web.json build/web/vercel.json
+          test -f build/web/index.html
+          echo "Build size: $(du -sh build/web | cut -f1)"
+
+      - name: Link Vercel project
+        working-directory: inventrax_erp
+        run: |
+          if [ -n "$VERCEL_ORG_ID" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
+            mkdir -p .vercel
+            printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
+            echo "Using VERCEL_ORG_ID + VERCEL_PROJECT_ID from GitHub secrets."
+          elif [ -f .vercel/project.json ]; then
+            echo "Using committed inventrax_erp/.vercel/project.json"
+          else
+            echo "::error::Add VERCEL_ORG_ID + VERCEL_PROJECT_ID secrets, or commit inventrax_erp/.vercel/project.json"
+            exit 1
+          fi
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@39.6.0
+
+      - name: Deploy to Vercel production
+        working-directory: inventrax_erp
+        run: vercel deploy build/web --prod --yes --token "$VERCEL_TOKEN"
