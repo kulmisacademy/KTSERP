@@ -54,10 +54,13 @@ jobs:
           test -f build/web/index.html
 
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: inventrax_erp/build/web
-          vercel-args: '--prod'
+        working-directory: inventrax_erp
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "Add VERCEL_TOKEN to GitHub repository secrets."
+            exit 1
+          fi
+          npm install -g vercel@39.6.0
+          vercel deploy build/web --prod --yes --token "$VERCEL_TOKEN" --project kulmiserp
