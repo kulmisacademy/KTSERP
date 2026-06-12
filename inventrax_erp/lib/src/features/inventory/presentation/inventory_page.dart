@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventrax_erp/l10n/app_localizations.dart';
 
 import '../../../app/app_theme.dart';
+import '../../../core/l10n/l10n_extension.dart';
 import '../../../core/ux/responsive.dart';
 import '../../../core/ux/user_friendly_error.dart';
 import '../../../core/store/active_store_scope.dart';
