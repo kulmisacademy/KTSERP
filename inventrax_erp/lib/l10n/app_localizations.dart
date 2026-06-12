@@ -4180,6 +4180,36 @@ abstract class AppLocalizations {
   /// **'Account created'**
   String get acctAccountCreated;
 
+  /// No description provided for @acctCurrentBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance'**
+  String get acctCurrentBalance;
+
+  /// No description provided for @acctActivityLast6Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity (last 6 months)'**
+  String get acctActivityLast6Months;
+
+  /// No description provided for @acctCannotDeleteWithBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot delete: this account has a balance or transactions.'**
+  String get acctCannotDeleteWithBalance;
+
+  /// No description provided for @acctAccountNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Account not found'**
+  String get acctAccountNotFound;
+
+  /// No description provided for @acctTapAccountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap any account to view charts and activity'**
+  String get acctTapAccountHint;
+
   /// No description provided for @acctOwnerCashMovements.
   ///
   /// In en, this message translates to:
@@ -4663,7 +4693,7 @@ abstract class AppLocalizations {
   /// No description provided for @acctDeleteAccountBody.
   ///
   /// In en, this message translates to:
-  /// **'This will deactivate the account (it will be hidden). System accounts or accounts used in journals cannot be deleted.'**
+  /// **'This will deactivate the account (it will be hidden). Accounts with a balance or journal activity cannot be deleted.'**
   String get acctDeleteAccountBody;
 
   /// No description provided for @acctBalancedEntryBannerSubtitle.

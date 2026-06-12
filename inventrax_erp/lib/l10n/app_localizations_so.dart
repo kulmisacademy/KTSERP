@@ -2249,6 +2249,23 @@ class AppLocalizationsSo extends AppLocalizations {
   String get acctAccountCreated => 'Xisaabta waa la abuuray';
 
   @override
+  String get acctCurrentBalance => 'Current balance';
+
+  @override
+  String get acctActivityLast6Months => 'Activity (last 6 months)';
+
+  @override
+  String get acctCannotDeleteWithBalance =>
+      'Cannot delete: this account has a balance or transactions.';
+
+  @override
+  String get acctAccountNotFound => 'Account not found';
+
+  @override
+  String get acctTapAccountHint =>
+      'Tap any account to view charts and activity';
+
+  @override
   String get acctOwnerCashMovements => 'Dhaqdhaqaaqa lacagta milkiilaha';
 
   @override

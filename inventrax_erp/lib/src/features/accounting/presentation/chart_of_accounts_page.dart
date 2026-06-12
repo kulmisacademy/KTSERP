@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/acct_l10n.dart';
 import '../../../core/l10n/l10n_extension.dart';
-import '../../../data/local/app_database.dart';
 import '../../../core/store_context.dart';
-import '../../../data/local/store_settings_provider.dart';
+import '../../../data/local/app_database.dart';
 import '../../../data/local/db_provider.dart';
+import '../../../data/local/store_settings_provider.dart';
 import '../data/accounting_provider.dart';
 import '../domain/accounting_constants.dart';
 import 'accounting_shell.dart';
@@ -27,6 +28,7 @@ class _ChartOfAccountsPageState extends ConsumerState<ChartOfAccountsPage> {
     final l10n = context.l10n;
     final currency = ref.watch(storeCurrencyProvider);
     final accounts = ref.watch(chartOfAccountsAllProvider(_showInactive));
+    final balances = ref.watch(chartAccountBalancesProvider);
 
     return AccountingShell(
       title: l10n.acctNavChartOfAccounts,
@@ -47,6 +49,7 @@ class _ChartOfAccountsPageState extends ConsumerState<ChartOfAccountsPage> {
         loading: () => const AccountingLoadingState(),
         error: (e, _) => Center(child: Text(l10n.acctErrorDetail(e.toString()))),
         data: (rows) {
+          final balanceMap = balances.asData?.value ?? {};
           final grouped = <String, List<ChartOfAccount>>{};
           for (final a in rows) {
             grouped.putIfAbsent(a.type, () => []).add(a);
@@ -65,8 +68,15 @@ class _ChartOfAccountsPageState extends ConsumerState<ChartOfAccountsPage> {
               children: [
                 AccountingPageHeader(
                   title: l10n.acctNavChartOfAccounts,
-                  subtitle: l10n.acctChartAccountsSubtitle(rows.length),
+                  subtitle: l10n.acctTapAccountHint,
                 ),
+                Text(
+                  l10n.acctChartAccountsSubtitle(rows.length),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+                const SizedBox(height: 16),
                 for (final type in order)
                   if (grouped[type]?.isNotEmpty == true) ...[
                     AccountingSectionTitle(
@@ -91,12 +101,11 @@ class _ChartOfAccountsPageState extends ConsumerState<ChartOfAccountsPage> {
                             AccountListTile(
                               code: grouped[type]![i].code,
                               name: grouped[type]![i].name,
-                              badge: null,
-                              trailing: grouped[type]![i].isSystem
+                              badge: grouped[type]![i].isSystem
                                   ? Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 8,
-                                        vertical: 4,
+                                        vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
                                         color: Theme.of(context)
@@ -111,9 +120,16 @@ class _ChartOfAccountsPageState extends ConsumerState<ChartOfAccountsPage> {
                                             .labelSmall,
                                       ),
                                     )
+                                  : null,
+                              trailing: balances.isLoading
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
                                   : Text(
                                       formatMoney(
-                                        grouped[type]![i].openingBalanceCents,
+                                        balanceMap[grouped[type]![i].id] ?? 0,
                                         currency: currency,
                                       ),
                                       style: Theme.of(context)
@@ -121,9 +137,8 @@ class _ChartOfAccountsPageState extends ConsumerState<ChartOfAccountsPage> {
                                           .titleSmall
                                           ?.copyWith(fontWeight: FontWeight.w700),
                                     ),
-                              onTap: () => _showAccountActions(
-                                context,
-                                grouped[type]![i],
+                              onTap: () => context.push(
+                                '/accounting/chart/${grouped[type]![i].id}',
                               ),
                             ),
                           ],
@@ -137,86 +152,6 @@ class _ChartOfAccountsPageState extends ConsumerState<ChartOfAccountsPage> {
         },
       ),
     );
-  }
-
-  Future<void> _showAccountActions(BuildContext context, ChartOfAccount account) async {
-    final l10n = context.l10n;
-    final canDeactivate = !account.isSystem;
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: Text('${account.code} • ${account.name}'),
-              subtitle: Text(localizedAccountTypeLabel(l10n, account.type)),
-              leading: Icon(Icons.account_tree_outlined, color: accountTypeColor(account.type)),
-            ),
-            const Divider(height: 1),
-            if (account.isActive && canDeactivate)
-              ListTile(
-                leading: const Icon(Icons.delete_outline),
-                title: Text(l10n.acctDeleteDeactivate),
-                subtitle: Text(l10n.acctDeleteDeactivateHint),
-                onTap: () => Navigator.pop(ctx, 'deactivate'),
-              ),
-            if (!account.isActive && canDeactivate)
-              ListTile(
-                leading: const Icon(Icons.restore),
-                title: Text(l10n.acctRestoreAccount),
-                onTap: () => Navigator.pop(ctx, 'activate'),
-              ),
-            ListTile(
-              leading: const Icon(Icons.close),
-              title: Text(l10n.commonClose),
-              onTap: () => Navigator.pop(ctx, null),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-    if (action == null) return;
-
-    final db = ref.read(appDatabaseProvider);
-    try {
-      if (action == 'deactivate') {
-        final ok = await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text(l10n.acctDeleteAccountTitle),
-            content: Text(l10n.acctDeleteAccountBody),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(l10n.commonCancel),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(l10n.commonDelete),
-              ),
-            ],
-          ),
-        );
-        if (ok != true) return;
-        await db.setChartAccountActive(accountId: account.id, isActive: false);
-      } else if (action == 'activate') {
-        await db.setChartAccountActive(accountId: account.id, isActive: true);
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.acctAccountUpdated(account.name))),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$e')),
-        );
-      }
-    }
   }
 
   Future<void> _showAddAccountDialog(BuildContext context) async {
@@ -313,6 +248,7 @@ class _ChartOfAccountsPageState extends ConsumerState<ChartOfAccountsPage> {
             type: type,
             openingBalanceCents: cents(openingText),
           );
+      ref.invalidate(chartAccountBalancesProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.acctAccountCreated)),

@@ -54,6 +54,60 @@ final paymentAccountsListProvider = FutureProvider<List<PaymentAccount>>((ref) a
   return db.listPaymentAccounts(storeId: StoreContext.storeId);
 });
 
+final chartAccountBalancesProvider =
+    FutureProvider.autoDispose<Map<String, int>>((ref) async {
+  ref.watch(accountingInitProvider);
+  final db = ref.watch(appDatabaseProvider);
+  final accounts = await db.listChartOfAccounts(
+    storeId: StoreContext.storeId,
+    includeInactive: true,
+  );
+  final balances = <String, int>{};
+  for (final a in accounts) {
+    balances[a.id] = await db.getAccountBalanceCents(a.id);
+  }
+  return balances;
+});
+
+final accountDetailProvider =
+    FutureProvider.autoDispose.family<AccountBalanceRow?, String>(
+  (ref, accountId) async {
+    ref.watch(accountingInitProvider);
+    final db = ref.watch(appDatabaseProvider);
+    final account = await db.getAccountById(accountId);
+    if (account == null) return null;
+    final activity = await db.sumAccountActivity(accountId: accountId);
+    final balance = db.signedBalanceCents(
+      accountType: account.type,
+      openingBalanceCents: account.openingBalanceCents,
+      debitSum: activity.debit,
+      creditSum: activity.credit,
+    );
+    return AccountBalanceRow(
+      account: account,
+      debitCents: activity.debit,
+      creditCents: activity.credit,
+      balanceCents: balance,
+    );
+  },
+);
+
+final accountLedgerProvider =
+    FutureProvider.autoDispose.family<List<LedgerLineRow>, String>(
+  (ref, accountId) async {
+    final db = ref.watch(appDatabaseProvider);
+    return db.ledgerForAccount(accountId: accountId);
+  },
+);
+
+final accountMonthlyActivityProvider =
+    FutureProvider.autoDispose.family<List<AccountMonthActivityPoint>, String>(
+  (ref, accountId) async {
+    final db = ref.watch(appDatabaseProvider);
+    return db.accountMonthlyActivity(accountId: accountId);
+  },
+);
+
 final defaultPaymentAccountProvider = FutureProvider.autoDispose<String?>(
   (ref) async {
     final db = ref.watch(appDatabaseProvider);

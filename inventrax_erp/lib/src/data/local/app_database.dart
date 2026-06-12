@@ -3924,19 +3924,61 @@ class AppDatabase extends _$AppDatabase {
     return res.read(journalLines.id.count()) ?? 0;
   }
 
+  Future<int> getAccountBalanceCents(String accountId) async {
+    final acct = await getAccountById(accountId);
+    if (acct == null) return 0;
+    final activity = await sumAccountActivity(accountId: accountId);
+    return signedBalanceCents(
+      accountType: acct.type,
+      openingBalanceCents: acct.openingBalanceCents,
+      debitSum: activity.debit,
+      creditSum: activity.credit,
+    );
+  }
+
+  Future<List<AccountMonthActivityPoint>> accountMonthlyActivity({
+    required String accountId,
+    int months = 6,
+  }) async {
+    final now = DateTime.now();
+    final points = <AccountMonthActivityPoint>[];
+    for (var i = months - 1; i >= 0; i--) {
+      final start = DateTime(now.year, now.month - i, 1);
+      final end = DateTime(now.year, now.month - i + 1, 0, 23, 59, 59);
+      final activity = await sumAccountActivity(
+        accountId: accountId,
+        from: start,
+        to: end,
+      );
+      points.add(
+        AccountMonthActivityPoint(
+          label: '${start.year}-${start.month.toString().padLeft(2, '0')}',
+          debitCents: activity.debit,
+          creditCents: activity.credit,
+        ),
+      );
+    }
+    return points;
+  }
+
   Future<void> setChartAccountActive({
     required String accountId,
     required bool isActive,
   }) async {
     final acct = await getAccountById(accountId);
     if (acct == null) return;
-    if (acct.isSystem && !isActive) {
-      throw StateError('System accounts cannot be deleted.');
-    }
     if (!isActive) {
+      final balance = await getAccountBalanceCents(accountId);
+      if (balance != 0) {
+        throw StateError(
+          'Account has a balance and cannot be deleted.',
+        );
+      }
       final used = await countJournalLinesForAccount(accountId);
       if (used > 0) {
-        throw StateError('Account is used in journal entries and cannot be deleted.');
+        throw StateError(
+          'Account is used in journal entries and cannot be deleted.',
+        );
       }
     }
     await (update(chartOfAccounts)..where((a) => a.id.equals(accountId))).write(
@@ -4689,6 +4731,18 @@ class MonthlyAmountPoint {
   final String label;
   final int revenueCents;
   final int expenseCents;
+}
+
+class AccountMonthActivityPoint {
+  const AccountMonthActivityPoint({
+    required this.label,
+    required this.debitCents,
+    required this.creditCents,
+  });
+
+  final String label;
+  final int debitCents;
+  final int creditCents;
 }
 
 

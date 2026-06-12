@@ -2236,6 +2236,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get acctAccountCreated => 'Account created';
 
   @override
+  String get acctCurrentBalance => 'Current balance';
+
+  @override
+  String get acctActivityLast6Months => 'Activity (last 6 months)';
+
+  @override
+  String get acctCannotDeleteWithBalance =>
+      'Cannot delete: this account has a balance or transactions.';
+
+  @override
+  String get acctAccountNotFound => 'Account not found';
+
+  @override
+  String get acctTapAccountHint =>
+      'Tap any account to view charts and activity';
+
+  @override
   String get acctOwnerCashMovements => 'Owner cash movements';
 
   @override
@@ -2503,7 +2520,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get acctDeleteAccountBody =>
-      'This will deactivate the account (it will be hidden). System accounts or accounts used in journals cannot be deleted.';
+      'This will deactivate the account (it will be hidden). Accounts with a balance or journal activity cannot be deleted.';
 
   @override
   String get acctBalancedEntryBannerSubtitle =>

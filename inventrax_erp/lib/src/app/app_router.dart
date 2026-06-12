@@ -5,6 +5,7 @@ import '../core/ux/app_transitions.dart';
 
 import '../features/accounting/presentation/accounting_dashboard_page.dart';
 import '../features/accounting/presentation/add_journal_entry_page.dart';
+import '../features/accounting/presentation/account_detail_page.dart';
 import '../features/accounting/presentation/chart_of_accounts_page.dart';
 import '../features/accounting/presentation/deposit_withdrawal_page.dart';
 import '../features/accounting/presentation/general_ledger_page.dart';
@@ -319,6 +320,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/accounting/chart',
         builder: (context, state) => const ChartOfAccountsPage(),
+      ),
+      GoRoute(
+        path: '/accounting/chart/:accountId',
+        builder: (context, state) => AccountDetailPage(
+          accountId: state.pathParameters['accountId']!,
+        ),
       ),
       GoRoute(
         path: '/accounting/journals',
