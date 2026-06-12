@@ -10,6 +10,7 @@ import '../../data/accounting_provider.dart';
 import '../../domain/accounting_constants.dart';
 import '../accounting_shell.dart';
 import '../widgets/accounting_export_actions.dart';
+import '../widgets/accounting_report_widgets.dart';
 import '../widgets/accounting_ui.dart';
 
 final balanceSheetProvider =
@@ -30,45 +31,6 @@ class BalanceSheetPage extends ConsumerWidget {
 
     return AccountingShell(
       title: 'Balance sheet',
-      actions: [
-        AccountingExportButton(
-          filename: 'balance_sheet.pdf',
-          buildPdf: (service) async {
-            final rows = await ref.read(balanceSheetProvider.future);
-            final assets =
-                rows.where((r) => r.account.type == AccountType.asset).toList();
-            final liabilities = rows
-                .where((r) => r.account.type == AccountType.liability)
-                .toList();
-            final equity =
-                rows.where((r) => r.account.type == AccountType.equity).toList();
-            var ta = 0, tl = 0, te = 0;
-            for (final r in assets) {
-              ta += r.balanceCents;
-            }
-            for (final r in liabilities) {
-              tl += r.balanceCents;
-            }
-            for (final r in equity) {
-              te += r.balanceCents;
-            }
-            final currency = ref.read(storeCurrencyProvider);
-            final pdf = service.buildBalanceSheetPdf(
-              storeName: accountingStoreLabel(ref),
-              asOf: DateTime.now(),
-              assets: assets,
-              liabilities: liabilities,
-              equity: equity,
-              totalAssets: ta,
-              totalLiabilities: tl,
-              totalEquity: te,
-              currency: currency,
-            );
-            return pdf.save();
-          },
-        ),
-        const SizedBox(width: 8),
-      ],
       child: data.when(
         loading: () => const AccountingLoadingState(),
         error: (e, _) => Center(child: Text('$e')),
@@ -89,45 +51,86 @@ class BalanceSheetPage extends ConsumerWidget {
           }
           final equationOk = assets == liabilities + equity;
 
-          return AccountingPageBody(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                AccountingPageHeader(
-                  title: 'Balance sheet',
-                  subtitle: 'Assets, liabilities & equity · As of $asOf',
-                ),
-                AccountingStatusBanner(
-                  ok: equationOk,
-                  title: 'Assets = Liabilities + Equity',
-                  subtitle:
-                      '${formatMoney(assets, currency: currency)} = '
-                      '${formatMoney(liabilities + equity, currency: currency)}',
-                ),
-                const SizedBox(height: 20),
-                _ReportSection(
-                  title: 'Assets',
-                  rows: rows,
-                  type: AccountType.asset,
-                  currency: currency,
-                  color: accountTypeColor(AccountType.asset),
-                ),
-                _ReportSection(
-                  title: 'Liabilities',
-                  rows: rows,
-                  type: AccountType.liability,
-                  currency: currency,
-                  color: accountTypeColor(AccountType.liability),
-                ),
-                _ReportSection(
-                  title: 'Equity',
-                  rows: rows,
-                  type: AccountType.equity,
-                  currency: currency,
-                  color: accountTypeColor(AccountType.equity),
-                ),
-              ],
-            ),
+          return AccountingReportScaffold(
+            title: 'Balance sheet',
+            subtitle: 'Assets, liabilities & equity · As of $asOf',
+            exportFilename: 'balance_sheet.pdf',
+            buildPdf: (service) async {
+              final pdfRows = await ref.read(balanceSheetProvider.future);
+              final pdfAssets = pdfRows
+                  .where((r) => r.account.type == AccountType.asset)
+                  .toList();
+              final pdfLiabilities = pdfRows
+                  .where((r) => r.account.type == AccountType.liability)
+                  .toList();
+              final pdfEquity = pdfRows
+                  .where((r) => r.account.type == AccountType.equity)
+                  .toList();
+              var ta = 0, tl = 0, te = 0;
+              for (final r in pdfAssets) {
+                ta += r.balanceCents;
+              }
+              for (final r in pdfLiabilities) {
+                tl += r.balanceCents;
+              }
+              for (final r in pdfEquity) {
+                te += r.balanceCents;
+              }
+              final pdf = service.buildBalanceSheetPdf(
+                storeName: accountingStoreLabel(ref),
+                asOf: DateTime.now(),
+                assets: pdfAssets,
+                liabilities: pdfLiabilities,
+                equity: pdfEquity,
+                totalAssets: ta,
+                totalLiabilities: tl,
+                totalEquity: te,
+                currency: ref.read(storeCurrencyProvider),
+              );
+              return pdf.save();
+            },
+            statusOk: equationOk,
+            statusTitle: 'Assets = Liabilities + Equity',
+            statusSubtitle:
+                '${formatMoney(assets, currency: currency)} = '
+                '${formatMoney(liabilities + equity, currency: currency)}',
+            metrics: [
+              AccountingReportMetric(
+                label: 'Total assets',
+                value: formatMoney(assets, currency: currency),
+                icon: Icons.account_balance_wallet_outlined,
+                color: accountTypeColor(AccountType.asset),
+              ),
+              AccountingReportMetric(
+                label: 'Liabilities + equity',
+                value: formatMoney(liabilities + equity, currency: currency),
+                icon: Icons.balance_outlined,
+                color: accountTypeColor(AccountType.liability),
+              ),
+            ],
+            children: [
+              _ReportSection(
+                title: 'Assets',
+                rows: rows,
+                type: AccountType.asset,
+                currency: currency,
+                color: accountTypeColor(AccountType.asset),
+              ),
+              _ReportSection(
+                title: 'Liabilities',
+                rows: rows,
+                type: AccountType.liability,
+                currency: currency,
+                color: accountTypeColor(AccountType.liability),
+              ),
+              _ReportSection(
+                title: 'Equity',
+                rows: rows,
+                type: AccountType.equity,
+                currency: currency,
+                color: accountTypeColor(AccountType.equity),
+              ),
+            ],
           );
         },
       ),
@@ -187,9 +190,24 @@ class _ReportSection extends StatelessWidget {
                     child: Row(
                       children: [
                         Expanded(
-                          child: Text(
-                            section[i].account.name,
-                            style: Theme.of(context).textTheme.bodyLarge,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                section[i].account.name,
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                              Text(
+                                section[i].account.code,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                              ),
+                            ],
                           ),
                         ),
                         Text(

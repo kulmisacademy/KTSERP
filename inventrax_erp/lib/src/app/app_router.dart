@@ -9,6 +9,7 @@ import '../features/accounting/presentation/account_detail_page.dart';
 import '../features/accounting/presentation/chart_of_accounts_page.dart';
 import '../features/accounting/presentation/deposit_withdrawal_page.dart';
 import '../features/accounting/presentation/general_ledger_page.dart';
+import '../features/accounting/presentation/journal_detail_page.dart';
 import '../features/accounting/presentation/journal_entries_page.dart';
 import '../features/accounting/presentation/payment_accounts_page.dart';
 import '../features/accounting/presentation/reports/balance_sheet_page.dart';
@@ -334,6 +335,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/accounting/journals/new',
         builder: (context, state) => const AddJournalEntryPage(),
+      ),
+      GoRoute(
+        path: '/accounting/journals/:journalId',
+        builder: (context, state) => JournalDetailPage(
+          journalId: state.pathParameters['journalId']!,
+        ),
       ),
       GoRoute(
         path: '/accounting/ledger',

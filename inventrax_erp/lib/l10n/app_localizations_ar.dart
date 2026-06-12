@@ -2262,6 +2262,55 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get acctExportPdf => 'Export PDF';
+
+  @override
+  String get acctBooksBalanced => 'Books balanced';
+
+  @override
+  String get acctOutOfBalance => 'Out of balance';
+
+  @override
+  String get acctDebitTotal => 'Total debits';
+
+  @override
+  String get acctCreditTotal => 'Total credits';
+
+  @override
+  String get acctEditPaymentAccount => 'Edit payment account';
+
+  @override
+  String get acctAddPaymentAccount => 'Add payment account';
+
+  @override
+  String get acctPaymentAccountName => 'Wallet name';
+
+  @override
+  String get acctPaymentAccountType => 'Wallet type';
+
+  @override
+  String get acctSetAsDefault => 'Set as default payment';
+
+  @override
+  String get acctDefaultPaymentHint =>
+      'Used automatically at checkout when no wallet is selected';
+
+  @override
+  String get acctPaymentAccountSaved => 'Payment account saved';
+
+  @override
+  String get acctWalletTypeCash => 'Cash';
+
+  @override
+  String get acctWalletTypeBank => 'Bank';
+
+  @override
+  String get acctWalletTypeMobile => 'Mobile money';
+
+  @override
+  String get acctTapToEditWallet => 'Tap a wallet to edit';
+
+  @override
   String acctPurchaseSavedAccountingFailed(String detail) {
     return 'تم حفظ الشراء لكن فشل القيد المحاسبي: $detail';
   }

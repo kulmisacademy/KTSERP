@@ -4258,6 +4258,102 @@ abstract class AppLocalizations {
   /// **'Export failed: {detail}'**
   String acctExportFailed(String detail);
 
+  /// No description provided for @acctExportPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Export PDF'**
+  String get acctExportPdf;
+
+  /// No description provided for @acctBooksBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Books balanced'**
+  String get acctBooksBalanced;
+
+  /// No description provided for @acctOutOfBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of balance'**
+  String get acctOutOfBalance;
+
+  /// No description provided for @acctDebitTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total debits'**
+  String get acctDebitTotal;
+
+  /// No description provided for @acctCreditTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total credits'**
+  String get acctCreditTotal;
+
+  /// No description provided for @acctEditPaymentAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit payment account'**
+  String get acctEditPaymentAccount;
+
+  /// No description provided for @acctAddPaymentAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add payment account'**
+  String get acctAddPaymentAccount;
+
+  /// No description provided for @acctPaymentAccountName.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet name'**
+  String get acctPaymentAccountName;
+
+  /// No description provided for @acctPaymentAccountType.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet type'**
+  String get acctPaymentAccountType;
+
+  /// No description provided for @acctSetAsDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Set as default payment'**
+  String get acctSetAsDefault;
+
+  /// No description provided for @acctDefaultPaymentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used automatically at checkout when no wallet is selected'**
+  String get acctDefaultPaymentHint;
+
+  /// No description provided for @acctPaymentAccountSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment account saved'**
+  String get acctPaymentAccountSaved;
+
+  /// No description provided for @acctWalletTypeCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get acctWalletTypeCash;
+
+  /// No description provided for @acctWalletTypeBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get acctWalletTypeBank;
+
+  /// No description provided for @acctWalletTypeMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile money'**
+  String get acctWalletTypeMobile;
+
+  /// No description provided for @acctTapToEditWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a wallet to edit'**
+  String get acctTapToEditWallet;
+
   /// No description provided for @acctPurchaseSavedAccountingFailed.
   ///
   /// In en, this message translates to:

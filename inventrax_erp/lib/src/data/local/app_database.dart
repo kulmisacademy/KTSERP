@@ -4015,6 +4015,201 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  Future<PaymentAccount?> getPaymentAccountById(String id) {
+    return (select(paymentAccounts)..where((p) => p.id.equals(id)))
+        .getSingleOrNull();
+  }
+
+  Future<JournalEntry?> getJournalEntryById(String id) {
+    return (select(journalEntries)..where((e) => e.id.equals(id)))
+        .getSingleOrNull();
+  }
+
+  Future<String> _nextWalletAssetCode({
+    required String tenantId,
+    required String storeId,
+  }) async {
+    final assets = await listChartOfAccounts(
+      storeId: storeId,
+      includeInactive: true,
+    );
+    var maxCode = 1049;
+    for (final a in assets) {
+      if (a.type != AccountType.asset) continue;
+      final n = int.tryParse(a.code);
+      if (n != null && n >= 1000 && n < 1100 && n > maxCode) {
+        maxCode = n;
+      }
+    }
+    return '${maxCode + 10}';
+  }
+
+  Future<String> _ensureChartAccountForPaymentWallet({
+    required String tenantId,
+    required String storeId,
+    required String name,
+    required String accountType,
+    String? existingChartAccountId,
+  }) async {
+    if (existingChartAccountId != null) {
+      final chart = await getAccountById(existingChartAccountId);
+      if (chart != null) {
+        if (!chart.isSystem && chart.name != name.trim()) {
+          await (update(chartOfAccounts)
+                ..where((a) => a.id.equals(chart.id)))
+              .write(ChartOfAccountsCompanion(name: Value(name.trim())));
+          final updated = await getAccountById(chart.id);
+          if (updated != null) {
+            await enqueueSync(
+              tenantId: tenantId,
+              storeId: storeId,
+              entity: 'chart_of_accounts',
+              entityId: updated.id,
+              operation: 'upsert',
+              payload: SyncPayload.chartOfAccount(updated),
+            );
+          }
+        }
+        return existingChartAccountId;
+      }
+    }
+
+    final trimmed = name.trim();
+    final assets = await listChartOfAccounts(storeId: storeId);
+    for (final a in assets) {
+      if (a.type == AccountType.asset &&
+          a.name.toLowerCase() == trimmed.toLowerCase()) {
+        return a.id;
+      }
+    }
+
+    final defaultCode = switch (accountType) {
+      'bank' => AcctCode.bank,
+      'mobile' => null,
+      _ => AcctCode.cash,
+    };
+    if (defaultCode != null) {
+      final byCode = await getAccountByCode(
+        tenantId: tenantId,
+        storeId: storeId,
+        code: defaultCode,
+      );
+      if (byCode != null && byCode.name.toLowerCase() == trimmed.toLowerCase()) {
+        return byCode.id;
+      }
+    }
+
+    final code = await _nextWalletAssetCode(
+      tenantId: tenantId,
+      storeId: storeId,
+    );
+    await createChartAccount(
+      tenantId: tenantId,
+      storeId: storeId,
+      code: code,
+      name: trimmed,
+      type: AccountType.asset,
+    );
+    final created = await getAccountByCode(
+      tenantId: tenantId,
+      storeId: storeId,
+      code: code,
+    );
+    if (created == null) {
+      throw StateError('Could not create chart account for wallet.');
+    }
+    return created.id;
+  }
+
+  Future<void> savePaymentAccount({
+    String? id,
+    required String tenantId,
+    required String storeId,
+    required String name,
+    required String accountType,
+    bool isDefault = false,
+  }) async {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError('Wallet name is required.');
+    }
+    if (!{'cash', 'bank', 'mobile'}.contains(accountType)) {
+      throw ArgumentError('Invalid wallet type.');
+    }
+
+    PaymentAccount? existing;
+    if (id != null) {
+      existing = await getPaymentAccountById(id);
+      if (existing == null) {
+        throw StateError('Payment account not found.');
+      }
+    }
+
+    final chartAccountId = await _ensureChartAccountForPaymentWallet(
+      tenantId: tenantId,
+      storeId: storeId,
+      name: trimmed,
+      accountType: accountType,
+      existingChartAccountId: existing?.chartAccountId,
+    );
+
+    final accountId = id ?? _uuid.v4();
+
+    if (isDefault) {
+      await (update(paymentAccounts)..where((p) => p.storeId.equals(storeId)))
+          .write(const PaymentAccountsCompanion(isDefault: Value(false)));
+    }
+
+    await into(paymentAccounts).insert(
+      PaymentAccountsCompanion.insert(
+        id: accountId,
+        tenantId: tenantId,
+        storeId: storeId,
+        name: trimmed,
+        accountType: accountType,
+        chartAccountId: chartAccountId,
+        isDefault: Value(isDefault),
+        isActive: const Value(true),
+      ),
+      mode: InsertMode.insertOrReplace,
+    );
+
+    final saved = await getPaymentAccountById(accountId);
+    if (saved != null) {
+      await enqueueSync(
+        tenantId: tenantId,
+        storeId: storeId,
+        entity: 'payment_accounts',
+        entityId: saved.id,
+        operation: 'upsert',
+        payload: SyncPayload.paymentAccount(saved),
+      );
+    }
+  }
+
+  Future<void> deactivatePaymentAccount({
+    required String id,
+    required String tenantId,
+    required String storeId,
+  }) async {
+    final existing = await getPaymentAccountById(id);
+    if (existing == null) return;
+    await (update(paymentAccounts)..where((p) => p.id.equals(id))).write(
+      const PaymentAccountsCompanion(isActive: Value(false)),
+    );
+    final updated = await getPaymentAccountById(id);
+    if (updated != null) {
+      await enqueueSync(
+        tenantId: tenantId,
+        storeId: storeId,
+        entity: 'payment_accounts',
+        entityId: updated.id,
+        operation: 'upsert',
+        payload: SyncPayload.paymentAccount(updated),
+      );
+    }
+  }
+
   Future<List<JournalEntry>> listJournalEntries({
     required String storeId,
     DateTime? from,

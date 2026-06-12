@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/app_theme.dart';
 import '../../../../core/ux/responsive.dart';
-import '../../../../ui/components/app_card.dart';
 
 /// Standard scroll body padding for accounting pages.
 class AccountingPageBody extends StatelessWidget {
@@ -563,11 +562,13 @@ class PaymentWalletCard extends StatelessWidget {
     required this.name,
     required this.accountType,
     required this.isDefault,
+    this.onTap,
   });
 
   final String name;
   final String accountType;
   final bool isDefault;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -582,56 +583,70 @@ class PaymentWalletCard extends StatelessWidget {
       _ => const Color(0xFFFFA000),
     };
 
-    return AppCard(
-      padding: const EdgeInsets.all(14),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 26),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  accountType.toUpperCase(),
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        letterSpacing: 0.8,
-                      ),
+                child: Icon(icon, color: color, size: 26),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      accountType.toUpperCase(),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            letterSpacing: 0.8,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              if (isDefault)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: InventraXTheme.accent.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'Default',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: InventraXTheme.accent,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ),
+              if (onTap != null) ...[
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ],
-            ),
+            ],
           ),
-          if (isDefault)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: InventraXTheme.accent.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                'Default',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: InventraXTheme.accent,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }

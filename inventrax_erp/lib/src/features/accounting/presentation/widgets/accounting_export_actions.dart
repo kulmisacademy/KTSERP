@@ -14,17 +14,34 @@ class AccountingExportButton extends ConsumerWidget {
     super.key,
     required this.filename,
     required this.buildPdf,
+    this.showLabel = false,
   });
 
   final String filename;
   final Future<List<int>> Function(AccountingPdfService service) buildPdf;
+  final bool showLabel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final onExport = () => _export(context, ref);
+
+    if (showLabel) {
+      return OutlinedButton.icon(
+        onPressed: onExport,
+        icon: const Icon(Icons.picture_as_pdf_outlined, size: 18),
+        label: Text(l10n.acctExportPdf),
+      );
+    }
+
     return IconButton(
-      tooltip: 'Export PDF',
+      tooltip: l10n.acctExportPdf,
       icon: const Icon(Icons.picture_as_pdf_outlined),
-      onPressed: () async {
+      onPressed: onExport,
+    );
+  }
+
+  Future<void> _export(BuildContext context, WidgetRef ref) async {
         try {
           final settings = ref.read(storeSettingsProvider).value;
           final branding = await StoreBrandingPdf.fromSettings(settings);
@@ -43,8 +60,6 @@ class AccountingExportButton extends ConsumerWidget {
             );
           }
         }
-      },
-    );
   }
 }
 

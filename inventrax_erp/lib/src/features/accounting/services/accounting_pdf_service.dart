@@ -122,6 +122,45 @@ class AccountingPdfService {
     return doc;
   }
 
+  pw.Document buildCashFlowPdf({
+    required String storeName,
+    required DateTime periodEnd,
+    required String periodLabel,
+    required int netMovement,
+    required int cashPosition,
+    required List<({String name, int balanceCents})> wallets,
+    String currency = 'USD',
+  }) {
+    final doc = pw.Document();
+    doc.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (context) => [
+          _header(storeName, 'Cash Flow', periodEnd, subtitle: periodLabel),
+          pw.SizedBox(height: 12),
+          _line('Net movement', netMovement, currency, bold: true),
+          _line('Cash position', cashPosition, currency, bold: true),
+          pw.SizedBox(height: 12),
+          pw.Text(
+            'Wallet breakdown',
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          ),
+          pw.SizedBox(height: 4),
+          for (final w in wallets)
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(w.name),
+                pw.Text(_money(w.balanceCents, currency)),
+              ],
+            ),
+          ..._footerWidgets(),
+        ],
+      ),
+    );
+    return doc;
+  }
+
   List<pw.Widget> _section(
     String title,
     List<AccountBalanceRow> rows,

@@ -1,1 +1,49 @@
-{}
+{
+  "ar": [
+    "acctCurrentBalance",
+    "acctActivityLast6Months",
+    "acctCannotDeleteWithBalance",
+    "acctAccountNotFound",
+    "acctTapAccountHint",
+    "acctExportPdf",
+    "acctBooksBalanced",
+    "acctOutOfBalance",
+    "acctDebitTotal",
+    "acctCreditTotal",
+    "acctEditPaymentAccount",
+    "acctAddPaymentAccount",
+    "acctPaymentAccountName",
+    "acctPaymentAccountType",
+    "acctSetAsDefault",
+    "acctDefaultPaymentHint",
+    "acctPaymentAccountSaved",
+    "acctWalletTypeCash",
+    "acctWalletTypeBank",
+    "acctWalletTypeMobile",
+    "acctTapToEditWallet"
+  ],
+
+  "so": [
+    "acctCurrentBalance",
+    "acctActivityLast6Months",
+    "acctCannotDeleteWithBalance",
+    "acctAccountNotFound",
+    "acctTapAccountHint",
+    "acctExportPdf",
+    "acctBooksBalanced",
+    "acctOutOfBalance",
+    "acctDebitTotal",
+    "acctCreditTotal",
+    "acctEditPaymentAccount",
+    "acctAddPaymentAccount",
+    "acctPaymentAccountName",
+    "acctPaymentAccountType",
+    "acctSetAsDefault",
+    "acctDefaultPaymentHint",
+    "acctPaymentAccountSaved",
+    "acctWalletTypeCash",
+    "acctWalletTypeBank",
+    "acctWalletTypeMobile",
+    "acctTapToEditWallet"
+  ]
+}

@@ -8,7 +8,6 @@ import '../../../core/l10n/l10n_extension.dart';
 import '../../../core/store_context.dart';
 import '../../../data/local/app_database.dart';
 import '../../../data/local/db_provider.dart';
-import '../../../data/local/store_settings_provider.dart';
 import '../data/accounting_provider.dart';
 import 'accounting_shell.dart';
 import 'widgets/accounting_ui.dart';
@@ -32,7 +31,6 @@ class JournalEntriesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final entries = ref.watch(journalListProvider);
-    final currency = ref.watch(storeCurrencyProvider);
     final dateFmt = DateFormat('MMM d, yyyy');
     final timeFmt = DateFormat.jm();
 
@@ -91,7 +89,9 @@ class JournalEntriesPage extends ConsumerWidget {
                           entry: rows[i],
                           dateFmt: dateFmt,
                           timeFmt: timeFmt,
-                          onTap: () => _showDetail(context, ref, rows[i], currency),
+                          onTap: () => context.push(
+                            '/accounting/journals/${rows[i].id}',
+                          ),
                         ),
                       ],
                     ],
@@ -101,91 +101,6 @@ class JournalEntriesPage extends ConsumerWidget {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Future<void> _showDetail(
-    BuildContext context,
-    WidgetRef ref,
-    JournalEntry entry,
-    String currency,
-  ) async {
-    final db = ref.read(appDatabaseProvider);
-    final lines = await db.listLinesForJournal(entry.id);
-    final accounts = await ref.read(chartOfAccountsProvider.future);
-    final byId = {for (final a in accounts) a.id: a};
-
-    if (!context.mounted) return;
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Expanded(child: Text(entry.description)),
-            AccountingSourceChip(source: entry.sourceModule),
-          ],
-        ),
-        content: SizedBox(
-          width: 520,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                DateFormat.yMMMd().add_jm().format(entry.entryDate),
-                style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                    ),
-              ),
-              const SizedBox(height: 16),
-              for (final l in lines)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${byId[l.accountId]?.code ?? ''} ${byId[l.accountId]?.name ?? l.accountId}',
-                          style: Theme.of(ctx).textTheme.bodyMedium,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: l.debitCents > 0
-                              ? InventraXTheme.primary.withValues(alpha: 0.1)
-                              : InventraXTheme.accent.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          l.debitCents > 0
-                              ? 'Dr ${formatMoney(l.debitCents, currency: currency)}'
-                              : 'Cr ${formatMoney(l.creditCents, currency: currency)}',
-                          style: Theme.of(ctx).textTheme.labelLarge?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: l.debitCents > 0
-                                    ? InventraXTheme.primary
-                                    : InventraXTheme.accent,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close'),
-          ),
-        ],
       ),
     );
   }
