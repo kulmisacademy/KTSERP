@@ -24,16 +24,37 @@ flutter run
 
 ### Vercel production deploy
 
-**GitHub Actions** builds and deploys on every push to `main`.
+**How it works:** GitHub Actions builds Flutter on Ubuntu, then uploads the static `build/web` folder to Vercel. Vercel must **NOT** run its own build (that causes 30–45 min “Building…” hangs).
 
-**Local deploy** (after `flutter build web`):
+#### One-time Vercel dashboard fix (do this once)
+
+1. Open [vercel.com → kulmiserp → Settings → General](https://vercel.com/kulmisacademys-projects/kulmiserp/settings)
+2. Under **Build & Development Settings**:
+   - **Framework Preset:** Other
+   - Turn **OFF** the override toggle for **Build Command** (must be empty — not `bash vercel-build.sh`)
+   - Turn **OFF** override for **Output Directory**
+   - Turn **OFF** override for **Install Command**
+3. Under **Ignored Build Step**, set command to: `exit 0`
+4. Save
+
+#### GitHub secrets (Settings → Secrets → Actions)
+
+| Secret | Required |
+|--------|----------|
+| `SUPABASE_URL` | Yes |
+| `SUPABASE_ANON_KEY` | Yes |
+| `VERCEL_TOKEN` | Yes — [create token](https://vercel.com/account/tokens) with **Full Account** |
+
+Do **not** set `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` unless you know they are correct.
+
+#### Local deploy
 
 ```powershell
 cd inventrax_erp
 .\vercel-deploy.ps1
 ```
 
-**Vercel dashboard (required once):** Project **kulmiserp** → Settings → General → Build & Development Settings — turn **OFF** overrides for Build Command, Output Directory, and Install Command. Otherwise Vercel tries to rebuild Flutter for 30+ minutes.
+Every push to `main` triggers automatic deploy via GitHub Actions.
 
 Set these in Vercel project environment (and Supabase Edge Function secrets):
 

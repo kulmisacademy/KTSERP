@@ -87,6 +87,24 @@ jobs:
       - name: Install Vercel CLI
         run: npm install -g vercel@54.12.2
 
+      - name: Disable Vercel remote build (one-time safe patch)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          SCOPE="${VERCEL_SCOPE:-kulmisacademys-projects}"
+          curl -sf -X PATCH "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}?teamId=${SCOPE}" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "buildCommand": "",
+              "installCommand": "",
+              "outputDirectory": null,
+              "framework": null,
+              "commandForIgnoringBuildStep": "exit 0"
+            }' > /dev/null
+          echo "Vercel project configured for prebuilt static deploys (no remote Flutter build)."
+
       - name: Deploy to Vercel production
         working-directory: inventrax_erp
         env:
@@ -101,27 +119,28 @@ jobs:
             --prod
             --yes
             --archive=tgz
+            --no-wait
             --token "$VERCEL_TOKEN"
             --project "$VERCEL_PROJECT_NAME"
             --scope "$SCOPE"
           )
           echo "Running: vercel ${DEPLOY_ARGS[*]}"
           DEPLOY_LOG="$(mktemp)"
-          if ! vercel "${DEPLOY_ARGS[@]}" 2>&1 | tee "$DEPLOY_LOG"; then
-            echo "::error::vercel deploy command failed"
-            exit 1
-          fi
+          vercel "${DEPLOY_ARGS[@]}" 2>&1 | tee "$DEPLOY_LOG"
           if grep -qi "Project not found" "$DEPLOY_LOG"; then
-            echo "::error::Vercel project '$VERCEL_PROJECT_NAME' not found in scope '$SCOPE'. Check VERCEL_TOKEN access."
+            echo "::error::Vercel project '$VERCEL_PROJECT_NAME' not found in scope '$SCOPE'."
             exit 1
           fi
           DEPLOY_URL="$(grep -Eo 'https://[a-zA-Z0-9._-]+\.vercel\.app' "$DEPLOY_LOG" | tail -n 1)"
+          if [[ ! "$DEPLOY_URL" == http* ]]; then
+            echo "::error::Vercel deploy did not return a URL"
+            cat "$DEPLOY_LOG"
+            exit 1
+          fi
+          echo "Uploaded. Waiting for Vercel to promote (max 5 min)..."
+          vercel inspect "$DEPLOY_URL" --wait --timeout 5m --token "$VERCEL_TOKEN" --scope "$SCOPE"
           echo "deployment_url=$DEPLOY_URL"
           echo "### Deployment" >> "$GITHUB_STEP_SUMMARY"
           echo "- Production URL: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Custom domain: https://kulmiserp.vercel.app" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Project: $VERCEL_PROJECT_NAME (scope: $SCOPE, prebuilt static)" >> "$GITHUB_STEP_SUMMARY"
-          if [[ ! "$DEPLOY_URL" == http* ]]; then
-            echo "::error::Vercel deploy did not return a URL"
-            exit 1
-          fi
+          echo "- Live site: https://kulmiserp.vercel.app" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Project: $VERCEL_PROJECT_NAME (prebuilt static, no remote build)" >> "$GITHUB_STEP_SUMMARY"
