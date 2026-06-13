@@ -1,3 +1,6 @@
+# Vercel prebuilt output (local deploy only)
+.vercel/output/
+
 # Environment secrets
 .env
 .env.local

@@ -1,5 +1,8 @@
 ## InventraX ERP
 
+**Repository:** [github.com/kulmisacademy/KTSERP](https://github.com/kulmisacademy/KTSERP)  
+**Production:** [kulmiserp.vercel.app](https://kulmiserp.vercel.app)
+
 InventraX is an **offline-first, multi-tenant ERP + POS** for retail (Somalia/East Africa first) built with:
 
 - **Frontend**: Flutter + Riverpod + go_router
@@ -39,6 +42,8 @@ flutter run
 
 #### GitHub secrets (Settings → Secrets → Actions)
 
+Add these on the **KTSERP** repo: [Settings → Secrets → Actions](https://github.com/kulmisacademy/KTSERP/settings/secrets/actions)
+
 | Secret | Required |
 |--------|----------|
 | `SUPABASE_URL` | Yes |
@@ -46,6 +51,14 @@ flutter run
 | `VERCEL_TOKEN` | Yes — [create token](https://vercel.com/account/tokens) with **Full Account** |
 
 Do **not** set `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` unless you know they are correct.
+
+#### Connect Vercel to the new GitHub repo
+
+1. Open [kulmiserp → Settings → Git](https://vercel.com/kulmisacademys-projects/kulmiserp/settings/git)
+2. Connect **kulmisacademy/KTSERP** (replace the deleted repo if it still shows)
+3. Production branch: **main**
+
+Deploys are driven by **GitHub Actions** (prebuilt upload). Vercel Git integration is optional but keeps the dashboard in sync.
 
 #### Local deploy
 
