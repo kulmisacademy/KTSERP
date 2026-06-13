@@ -92,8 +92,8 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           set -euo pipefail
-          SCOPE="${VERCEL_SCOPE:-kulmisacademys-projects}"
-          curl -sf -X PATCH "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}?teamId=${SCOPE}" \
+          TEAM_ID="${VERCEL_TEAM_ID:-team_UP4pmRBtBm27E8FYQE2JZuhI}"
+          curl -sf -X PATCH "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_NAME}?teamId=${TEAM_ID}" \
             -H "Authorization: Bearer ${VERCEL_TOKEN}" \
             -H "Content-Type: application/json" \
             -d '{
@@ -113,22 +113,40 @@ jobs:
         run: |
           set -euo pipefail
           SCOPE="${VERCEL_SCOPE:-kulmisacademys-projects}"
+          TEAM_ID="${VERCEL_TEAM_ID:-team_UP4pmRBtBm27E8FYQE2JZuhI}"
+
+          # Hobby teams block CLI deploys when .git commit author != Vercel team owner.
+          # Stage prebuilt output outside the git checkout so no commit metadata is attached.
+          STAGING="$(mktemp -d)"
+          mkdir -p "$STAGING/.vercel/output/static"
+          cp -r .vercel/output/static/. "$STAGING/.vercel/output/static/"
+          cp .vercel/output/config.json "$STAGING/.vercel/output/config.json"
+          cp .vercel/project.json "$STAGING/.vercel/project.json"
+          cd "$STAGING"
+
           DEPLOY_ARGS=(
             deploy
             --prebuilt
             --prod
             --yes
             --archive=tgz
-            --no-wait
             --token "$VERCEL_TOKEN"
             --project "$VERCEL_PROJECT_NAME"
             --scope "$SCOPE"
           )
           echo "Running: vercel ${DEPLOY_ARGS[*]}"
           DEPLOY_LOG="$(mktemp)"
-          vercel "${DEPLOY_ARGS[@]}" 2>&1 | tee "$DEPLOY_LOG"
+          if ! vercel "${DEPLOY_ARGS[@]}" 2>&1 | tee "$DEPLOY_LOG"; then
+            echo "::error::Vercel deploy command failed"
+            cat "$DEPLOY_LOG"
+            exit 1
+          fi
           if grep -qi "Project not found" "$DEPLOY_LOG"; then
             echo "::error::Vercel project '$VERCEL_PROJECT_NAME' not found in scope '$SCOPE'."
+            exit 1
+          fi
+          if grep -qi "must have access to the team" "$DEPLOY_LOG"; then
+            echo "::error::Vercel blocked deploy: git commit author must be the Hobby team owner, or deploy without git metadata."
             exit 1
           fi
           DEPLOY_URL="$(grep -Eo 'https://[a-zA-Z0-9._-]+\.vercel\.app' "$DEPLOY_LOG" | tail -n 1)"
@@ -137,8 +155,6 @@ jobs:
             cat "$DEPLOY_LOG"
             exit 1
           fi
-          echo "Uploaded. Waiting for Vercel to promote (max 5 min)..."
-          vercel inspect "$DEPLOY_URL" --wait --timeout 5m --token "$VERCEL_TOKEN" --scope "$SCOPE"
           echo "deployment_url=$DEPLOY_URL"
           echo "### Deployment" >> "$GITHUB_STEP_SUMMARY"
           echo "- Production URL: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"

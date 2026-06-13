@@ -52,6 +52,8 @@ Add these on the **KTSERP** repo: [Settings → Secrets → Actions](https://git
 
 Do **not** set `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` unless you know they are correct.
 
+**Hobby team note:** Vercel blocks deploys when the git commit author is not the team owner. GitHub Actions works around this by uploading prebuilt files outside the git checkout. For local deploys, use `.\vercel-deploy.ps1` (same workaround).
+
 #### Connect Vercel to the new GitHub repo
 
 1. Open [kulmiserp → Settings → Git](https://vercel.com/kulmisacademys-projects/kulmiserp/settings/git)
