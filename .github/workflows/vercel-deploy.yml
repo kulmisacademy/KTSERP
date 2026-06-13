@@ -70,6 +70,7 @@ jobs:
           rm -rf .vercel/output
           mkdir -p .vercel/output/static
           cp -r build/web/. .vercel/output/static/
+          rm -f .vercel/output/static/vercel.json
           cat > .vercel/output/config.json <<'EOF'
           {
             "version": 3,
