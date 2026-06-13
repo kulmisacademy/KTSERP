@@ -13,6 +13,8 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      VERCEL_PROJECT_NAME: kulmiserp
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,35 +62,35 @@ jobs:
           echo "Build size: $(du -sh build/web | cut -f1)"
           ls -la build/web | head -15
 
-      - name: Link Vercel project
-        working-directory: inventrax_erp
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-          if [ -n "$VERCEL_ORG_ID" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
-            mkdir -p .vercel
-            printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
-            echo "Using VERCEL_ORG_ID + VERCEL_PROJECT_ID from GitHub secrets."
-          elif [ -f .vercel/project.json ]; then
-            echo "Using committed inventrax_erp/.vercel/project.json"
-          else
-            echo "::error::Add VERCEL_ORG_ID + VERCEL_PROJECT_ID secrets, or commit inventrax_erp/.vercel/project.json"
-            exit 1
-          fi
-          cat .vercel/project.json
-
       - name: Prepare Vercel deploy bundle
         working-directory: inventrax_erp
         run: |
           cp vercel.web.json build/web/vercel.json
-          echo "Deploy bundle ready (project link stays in inventrax_erp/.vercel/project.json):"
-          cat .vercel/project.json
           test -f build/web/index.html
           echo "Build output: $(du -sh build/web | cut -f1)"
 
       - name: Install Vercel CLI
         run: npm install -g vercel@54.12.2
+
+      - name: Link Vercel project
+        working-directory: inventrax_erp
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          rm -rf .vercel
+          LINK_ARGS=(link --yes --project "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN")
+          if [ -n "${{ secrets.VERCEL_SCOPE }}" ]; then
+            LINK_ARGS+=(--scope "${{ secrets.VERCEL_SCOPE }}")
+          fi
+          echo "Running: vercel ${LINK_ARGS[*]}"
+          if ! vercel "${LINK_ARGS[@]}"; then
+            echo "::error::Could not link to Vercel project '$VERCEL_PROJECT_NAME'. Ensure the project exists at vercel.com and VERCEL_TOKEN has Full Account access for team kulmisacademys-projects."
+            exit 1
+          fi
+          test -f .vercel/project.json
+          echo "Linked project:"
+          cat .vercel/project.json
 
       - name: Deploy to Vercel production
         working-directory: inventrax_erp
@@ -96,27 +98,20 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -n "${{ secrets.VERCEL_ORG_ID }}" ] && [ -n "${{ secrets.VERCEL_PROJECT_ID }}" ]; then
-            export VERCEL_ORG_ID="${{ secrets.VERCEL_ORG_ID }}"
-            export VERCEL_PROJECT_ID="${{ secrets.VERCEL_PROJECT_ID }}"
-            echo "Using VERCEL_ORG_ID + VERCEL_PROJECT_ID from GitHub secrets."
-          else
-            export VERCEL_ORG_ID="$(jq -r .orgId .vercel/project.json)"
-            export VERCEL_PROJECT_ID="$(jq -r .projectId .vercel/project.json)"
-            echo "Using inventrax_erp/.vercel/project.json"
-          fi
-          echo "Target org=$VERCEL_ORG_ID project=$VERCEL_PROJECT_ID"
+          export VERCEL_ORG_ID="$(jq -r .orgId .vercel/project.json)"
+          export VERCEL_PROJECT_ID="$(jq -r .projectId .vercel/project.json)"
+          echo "Deploying org=$VERCEL_ORG_ID project=$VERCEL_PROJECT_ID ($VERCEL_PROJECT_NAME)"
           DEPLOY_LOG="$(mktemp)"
           if ! vercel deploy build/web --prod --yes --token "$VERCEL_TOKEN" 2>&1 | tee "$DEPLOY_LOG"; then
             echo "::error::vercel deploy command failed"
             exit 1
           fi
-          if grep -qi "don't have access" "$DEPLOY_LOG"; then
-            echo "::error::VERCEL_TOKEN cannot access this project/team. Regenerate the token at https://vercel.com/account/tokens (Full Account scope) and set GitHub secrets VERCEL_ORG_ID=team_UP4pmRBtBm27E8FYQE2JZuhI VERCEL_PROJECT_ID=prj_eAd5XNT6DhAViD3MZoeyK8VUYU7S"
+          if grep -qi "Project not found" "$DEPLOY_LOG"; then
+            echo "::error::Vercel project not found. Delete GitHub secrets VERCEL_ORG_ID and VERCEL_PROJECT_ID if set (they may be stale). Regenerate VERCEL_TOKEN at https://vercel.com/account/tokens with Full Account scope."
             exit 1
           fi
           if grep -Eqi "Linked to .*/web \(created" "$DEPLOY_LOG"; then
-            echo "::error::Vercel created a stray 'web' project instead of kulmiserp. Set GitHub secrets VERCEL_ORG_ID and VERCEL_PROJECT_ID to match inventrax_erp/.vercel/project.json"
+            echo "::error::Vercel created a stray 'web' project. Check VERCEL_TOKEN team access."
             exit 1
           fi
           DEPLOY_URL="$(grep -Eo 'https://[a-zA-Z0-9._-]+\.vercel\.app' "$DEPLOY_LOG" | tail -n 1)"
@@ -124,6 +119,7 @@ jobs:
           echo "### Deployment" >> "$GITHUB_STEP_SUMMARY"
           echo "- Production URL: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
           echo "- Custom domain: https://kulmiserp.vercel.app" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Project: $VERCEL_PROJECT_NAME (\`$VERCEL_PROJECT_ID\`)" >> "$GITHUB_STEP_SUMMARY"
           if [[ ! "$DEPLOY_URL" == http* ]]; then
             echo "::error::Vercel deploy did not return a URL"
             exit 1
