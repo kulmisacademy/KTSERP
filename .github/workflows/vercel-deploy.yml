@@ -13,6 +13,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     env:
       VERCEL_PROJECT_NAME: kulmiserp
     steps:
@@ -62,12 +63,26 @@ jobs:
           echo "Build size: $(du -sh build/web | cut -f1)"
           ls -la build/web | head -15
 
-      - name: Prepare Vercel deploy bundle
+      - name: Prepare Vercel prebuilt output
         working-directory: inventrax_erp
         run: |
-          cp vercel.web.json build/web/vercel.json
-          test -f build/web/index.html
-          echo "Build output: $(du -sh build/web | cut -f1)"
+          set -euo pipefail
+          rm -rf .vercel/output
+          mkdir -p .vercel/output/static
+          cp -r build/web/. .vercel/output/static/
+          cp vercel.web.json .vercel/output/static/vercel.json
+          cat > .vercel/output/config.json <<'EOF'
+          {
+            "version": 3,
+            "routes": [
+              { "handle": "filesystem" },
+              { "src": "/((?!.*\\.).*)", "dest": "/index.html" }
+            ]
+          }
+          EOF
+          test -f .vercel/output/static/index.html
+          echo "Prebuilt bundle: $(du -sh .vercel/output/static | cut -f1)"
+          ls -la .vercel/output/static | head -15
 
       - name: Install Vercel CLI
         run: npm install -g vercel@54.12.2
@@ -81,7 +96,8 @@ jobs:
           set -euo pipefail
           SCOPE="${VERCEL_SCOPE:-kulmisacademys-projects}"
           DEPLOY_ARGS=(
-            deploy build/web
+            deploy
+            --prebuilt
             --prod
             --yes
             --token "$VERCEL_TOKEN"
@@ -98,16 +114,12 @@ jobs:
             echo "::error::Vercel project '$VERCEL_PROJECT_NAME' not found in scope '$SCOPE'. Check VERCEL_TOKEN access."
             exit 1
           fi
-          if grep -Eqi "Linked to .*/web \(created" "$DEPLOY_LOG"; then
-            echo "::error::Vercel created a stray 'web' project. Check --project and --scope."
-            exit 1
-          fi
           DEPLOY_URL="$(grep -Eo 'https://[a-zA-Z0-9._-]+\.vercel\.app' "$DEPLOY_LOG" | tail -n 1)"
           echo "deployment_url=$DEPLOY_URL"
           echo "### Deployment" >> "$GITHUB_STEP_SUMMARY"
           echo "- Production URL: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
           echo "- Custom domain: https://kulmiserp.vercel.app" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Project: $VERCEL_PROJECT_NAME (scope: $SCOPE)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Project: $VERCEL_PROJECT_NAME (scope: $SCOPE, prebuilt static)" >> "$GITHUB_STEP_SUMMARY"
           if [[ ! "$DEPLOY_URL" == http* ]]; then
             echo "::error::Vercel deploy did not return a URL"
             exit 1
