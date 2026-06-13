@@ -24,10 +24,16 @@ flutter run
 
 ### Vercel production deploy
 
-```bash
+**GitHub Actions** builds and deploys on every push to `main`.
+
+**Local deploy** (after `flutter build web`):
+
+```powershell
 cd inventrax_erp
-flutter build web --release --dart-define-from-file=.env
+.\vercel-deploy.ps1
 ```
+
+**Vercel dashboard (required once):** Project **kulmiserp** → Settings → General → Build & Development Settings — turn **OFF** overrides for Build Command, Output Directory, and Install Command. Otherwise Vercel tries to rebuild Flutter for 30+ minutes.
 
 Set these in Vercel project environment (and Supabase Edge Function secrets):
 

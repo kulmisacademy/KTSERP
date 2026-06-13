@@ -76,7 +76,7 @@ jobs:
             "version": 3,
             "routes": [
               { "handle": "filesystem" },
-              { "src": "/((?!.*\\.).*)", "dest": "/index.html" }
+              { "src": "/(.*)", "dest": "/index.html" }
             ]
           }
           EOF
@@ -100,6 +100,7 @@ jobs:
             --prebuilt
             --prod
             --yes
+            --archive=tgz
             --token "$VERCEL_TOKEN"
             --project "$VERCEL_PROJECT_NAME"
             --scope "$SCOPE"
