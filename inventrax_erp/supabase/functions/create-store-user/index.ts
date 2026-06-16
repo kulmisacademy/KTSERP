@@ -1,5 +1,6 @@
 // Creates an auth user + store profile (store owner / users.manage only).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { validatePassword } from "../_shared/password_policy.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,6 +28,11 @@ Deno.serve(async (req) => {
 
     if (!email || !password || !fullName) {
       return json({ error: "email, password, and full_name are required" }, 400);
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      return json({ error: passwordError }, 400);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;

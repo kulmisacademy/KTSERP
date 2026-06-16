@@ -1,6 +1,7 @@
 // Password reset after Resend email OTP verification.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { hashSecret, normalizeEmail, RESET_TOKEN_TTL_SEC } from "../_shared/email_otp.ts";
+import { validatePassword } from "../_shared/password_policy.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,10 +21,15 @@ Deno.serve(async (req) => {
     const requestId = String(body.request_id ?? "");
     const newPassword = String(body.new_password ?? "");
 
-    if (!email || !resetToken || !requestId || newPassword.length < 8) {
+    if (!email || !resetToken || !requestId || !newPassword) {
       return json({
-        error: "email, request_id, reset_token, and new_password (8+) required",
+        error: "email, request_id, reset_token, and new_password required",
       }, 400);
+    }
+
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) {
+      return json({ error: passwordError }, 400);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;

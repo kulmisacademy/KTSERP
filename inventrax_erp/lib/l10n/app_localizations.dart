@@ -3073,7 +3073,7 @@ abstract class AppLocalizations {
   /// No description provided for @passwordHint.
   ///
   /// In en, this message translates to:
-  /// **'Min 8 chars, uppercase, lowercase, and a number.'**
+  /// **'At least 8 characters. Letters and/or numbers only — no symbols.'**
   String get passwordHint;
 
   /// No description provided for @reviewCreateStore.

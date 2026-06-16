@@ -1629,7 +1629,8 @@ class AppLocalizationsSo extends AppLocalizations {
   String get confirmPassword => 'Xaqiiji erayga sirta *';
 
   @override
-  String get passwordHint => 'Ugu yaraan 8 xaraf, weyn, yar, iyo tiro.';
+  String get passwordHint =>
+      'Ugu yaraan 8 xaraf. Xarfo iyo/ama tiro kaliya — calaamado ma jiraan.';
 
   @override
   String get reviewCreateStore => 'Dib u eeg oo abuur dukaanka';

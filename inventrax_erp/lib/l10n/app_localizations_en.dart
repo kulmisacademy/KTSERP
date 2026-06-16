@@ -1617,7 +1617,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmPassword => 'Confirm password *';
 
   @override
-  String get passwordHint => 'Min 8 chars, uppercase, lowercase, and a number.';
+  String get passwordHint =>
+      'At least 8 characters. Letters and/or numbers only — no symbols.';
 
   @override
   String get reviewCreateStore => 'Review and create your store';

@@ -497,7 +497,7 @@
   "ownerAccountTitle": "حساب المالك — ستكون مالك المتجر",
   "fullName": "الاسم الكامل *",
   "confirmPassword": "تأكيد كلمة المرور *",
-  "passwordHint": "8 أحرف على الأقل، كبيرة وصغيرة ورقم.",
+  "passwordHint": "8 أحرف على الأقل. أحرف وأ/أو أرقام فقط — بدون رموز.",
   "reviewCreateStore": "راجع وأنشئ متجرك",
   "freeTrial14Day": "تجربة مجانية 14 يوماً",
   "storeOwnerPermissions": "دور مالك المتجر بصلاحيات كاملة",

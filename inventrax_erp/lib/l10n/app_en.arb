@@ -586,7 +586,7 @@
   "ownerAccountTitle": "Owner account — you will be Store Owner",
   "fullName": "Full name *",
   "confirmPassword": "Confirm password *",
-  "passwordHint": "Min 8 chars, uppercase, lowercase, and a number.",
+  "passwordHint": "At least 8 characters. Letters and/or numbers only — no symbols.",
   "reviewCreateStore": "Review and create your store",
   "freeTrial14Day": "14-day Free Trial",
   "storeOwnerPermissions": "Store Owner role with full permissions",

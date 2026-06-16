@@ -1603,7 +1603,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get confirmPassword => 'تأكيد كلمة المرور *';
 
   @override
-  String get passwordHint => '8 أحرف على الأقل، كبيرة وصغيرة ورقم.';
+  String get passwordHint =>
+      '8 أحرف على الأقل. أحرف وأ/أو أرقام فقط — بدون رموز.';
 
   @override
   String get reviewCreateStore => 'راجع وأنشئ متجرك';
