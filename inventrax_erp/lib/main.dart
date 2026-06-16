@@ -35,9 +35,13 @@ Future<void> main() async {
 
 Future<void> _runApp() async {
   _installMouseTrackerGuard();
-  await MonitoringBootstrap.init();
-  await initSupabaseIfConfigured();
-  await openAppDatabase();
+  // Supabase init and DB open are independent — run them concurrently so the
+  // first frame paints sooner. The HTML splash covers this window.
+  await Future.wait<void>([
+    MonitoringBootstrap.init(),
+    initSupabaseIfConfigured(),
+    openAppDatabase(),
+  ]);
   runApp(
     SentryWidget(
       child: const ProviderScope(child: InventraXApp()),

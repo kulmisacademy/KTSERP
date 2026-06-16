@@ -964,6 +964,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsNoAudit => 'No audit entries yet.';
 
   @override
+  String get supportWhatsAppTitle => 'WhatsApp support';
+
+  @override
+  String get supportWhatsAppSubtitle =>
+      'Chat with KULMIS ERP — +252 613 609678';
+
+  @override
+  String get supportWhatsAppPrefill => 'Hello, I need help with KULMIS ERP.';
+
+  @override
+  String get supportWhatsAppUnavailable =>
+      'Could not open WhatsApp. Install it or use +252 613 609678.';
+
+  @override
   String get settingsExpenseSaved => 'Expense saved';
 
   @override

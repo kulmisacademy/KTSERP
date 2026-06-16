@@ -1,29 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
   <meta name="description" content="KULMIS ERP — offline-first retail POS and inventory.">
-  <meta name="theme-color" content="#051937">
+  <meta name="theme-color" content="#061426">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="KULMIS ERP">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
@@ -32,16 +21,129 @@
 
   <title>KULMIS ERP</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #061426;
+      overscroll-behavior: none;
+    }
+
+    /* Branded splash — paints instantly, no white flash, no asset dependency. */
+    #kulmis-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(1200px 600px at 50% 35%, #0c2444 0%, #061426 60%, #04101f 100%);
+      color: #e6eef7;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      transition: opacity 420ms ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #kulmis-splash.kulmis-hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .kulmis-mark {
+      width: 84px;
+      height: 84px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 22px;
+      background: linear-gradient(145deg, #1ABC9C 0%, #0e8e76 100%);
+      box-shadow: 0 12px 40px rgba(26, 188, 156, 0.35);
+      margin-bottom: 22px;
+      animation: kulmis-pop 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .kulmis-mark span {
+      font-size: 42px;
+      font-weight: 800;
+      color: #06223a;
+      letter-spacing: -1px;
+    }
+
+    .kulmis-wordmark {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+
+    .kulmis-wordmark .erp {
+      color: #1ABC9C;
+    }
+
+    .kulmis-spinner {
+      width: 34px;
+      height: 34px;
+      margin-top: 30px;
+      border: 3px solid rgba(230, 238, 247, 0.18);
+      border-top-color: #1ABC9C;
+      border-radius: 50%;
+      animation: kulmis-spin 0.85s linear infinite;
+    }
+
+    .kulmis-loading {
+      margin-top: 18px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: rgba(230, 238, 247, 0.6);
+      letter-spacing: 0.3px;
+    }
+
+    @keyframes kulmis-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes kulmis-pop {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .kulmis-mark { animation: none; }
+      .kulmis-spinner { animation-duration: 1.6s; }
+    }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
+  <div id="kulmis-splash" role="status" aria-live="polite" aria-label="Loading KULMIS ERP">
+    <div class="kulmis-mark"><span>K</span></div>
+    <p class="kulmis-wordmark">KULMIS <span class="erp">ERP</span></p>
+    <div class="kulmis-spinner"></div>
+    <p class="kulmis-loading">Loading KULMIS ERP…</p>
+  </div>
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <script>
+    (function () {
+      var removed = false;
+      function hideSplash() {
+        if (removed) return;
+        removed = true;
+        var el = document.getElementById('kulmis-splash');
+        if (!el) return;
+        el.classList.add('kulmis-hide');
+        window.setTimeout(function () {
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        }, 480);
+      }
+      // Flutter fires this on the window once the first frame is rasterized.
+      window.addEventListener('flutter-first-frame', hideSplash);
+      // Safety fallback so the splash never gets stuck if the event is missed.
+      window.setTimeout(hideSplash, 20000);
+    })();
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

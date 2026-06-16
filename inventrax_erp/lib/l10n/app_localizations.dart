@@ -1900,6 +1900,30 @@ abstract class AppLocalizations {
   /// **'No audit entries yet.'**
   String get settingsNoAudit;
 
+  /// No description provided for @supportWhatsAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp support'**
+  String get supportWhatsAppTitle;
+
+  /// No description provided for @supportWhatsAppSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with KULMIS ERP — +252 613 609678'**
+  String get supportWhatsAppSubtitle;
+
+  /// No description provided for @supportWhatsAppPrefill.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, I need help with KULMIS ERP.'**
+  String get supportWhatsAppPrefill;
+
+  /// No description provided for @supportWhatsAppUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open WhatsApp. Install it or use +252 613 609678.'**
+  String get supportWhatsAppUnavailable;
+
   /// No description provided for @settingsExpenseSaved.
   ///
   /// In en, this message translates to:

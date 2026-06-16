@@ -52,6 +52,8 @@ class InventraXApp extends ConsumerWidget {
 
     return MaterialApp.router(
 
+      debugShowCheckedModeBanner: false,
+
       title: EnvConfig.appName,
 
       theme: InventraXTheme.light(),

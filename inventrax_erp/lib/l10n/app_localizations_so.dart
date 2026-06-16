@@ -974,6 +974,20 @@ class AppLocalizationsSo extends AppLocalizations {
   String get settingsNoAudit => 'Weli diiwaan hubin ma jiro.';
 
   @override
+  String get supportWhatsAppTitle => 'Taageerada WhatsApp';
+
+  @override
+  String get supportWhatsAppSubtitle => 'La hadal KULMIS ERP — +252 613 609678';
+
+  @override
+  String get supportWhatsAppPrefill =>
+      'Salaan, waxaan u baahanahay caawimaad KULMIS ERP.';
+
+  @override
+  String get supportWhatsAppUnavailable =>
+      'WhatsApp lama furi karo. Ku rakib ama isticmaal +252 613 609678.';
+
+  @override
   String get settingsExpenseSaved => 'Kharashka waa la kaydiyay';
 
   @override

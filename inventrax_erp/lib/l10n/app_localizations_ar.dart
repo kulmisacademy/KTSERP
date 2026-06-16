@@ -955,6 +955,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsNoAudit => 'لا سجلات تدقيق بعد.';
 
   @override
+  String get supportWhatsAppTitle => 'دعم واتساب';
+
+  @override
+  String get supportWhatsAppSubtitle => 'تواصل مع KULMIS ERP — +252 613 609678';
+
+  @override
+  String get supportWhatsAppPrefill => 'مرحباً، أحتاج مساعدة في KULMIS ERP.';
+
+  @override
+  String get supportWhatsAppUnavailable =>
+      'تعذر فتح واتساب. ثبّت التطبيق أو اتصل +252 613 609678.';
+
+  @override
   String get settingsExpenseSaved => 'تم حفظ المصروف';
 
   @override

@@ -23,6 +23,7 @@ import '../../../core/ux/feedback_service.dart';
 import '../../../core/l10n/language_selector.dart';
 import '../../../core/l10n/l10n_extension.dart';
 import '../../../core/l10n/locale_provider.dart';
+import '../../../core/support/support_whatsapp.dart';
 import '../../../core/ux/theme_mode_provider.dart';
 import '../../../ui/layout/app_shell.dart';
 import '../../../ui/widgets/store_logo_picker.dart';
@@ -231,6 +232,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               if (StoreContext.can(AppPermission.systemHealthView) ||
                   StoreContext.isStoreOwner)
                 const SizedBox(height: 16),
+              AppCard(
+                child: ListTile(
+                  leading: Icon(Icons.chat_outlined, color: Colors.green.shade600),
+                  title: Text(l10n.supportWhatsAppTitle),
+                  subtitle: Text(l10n.supportWhatsAppSubtitle),
+                  trailing: const Icon(Icons.open_in_new),
+                  onTap: () => SupportWhatsApp.openChatOrSnackBar(
+                    context,
+                    message: l10n.supportWhatsAppPrefill,
+                    unavailableMessage: l10n.supportWhatsAppUnavailable,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

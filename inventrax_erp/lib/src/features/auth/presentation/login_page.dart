@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/l10n/l10n_extension.dart';
+import '../../../core/support/support_whatsapp.dart';
 import '../../../core/store_context.dart';
 import '../application/auth_exception.dart';
 import '../application/secure_session_store.dart';
@@ -220,6 +221,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+          TextButton.icon(
+            onPressed: _loading
+                ? null
+                : () => SupportWhatsApp.openChatOrSnackBar(
+                      context,
+                      message: l10n.supportWhatsAppPrefill,
+                      unavailableMessage: l10n.supportWhatsAppUnavailable,
+                    ),
+            icon: Icon(Icons.chat_outlined, color: Colors.green.shade600, size: 20),
+            label: Text(
+              l10n.supportWhatsAppTitle,
+              style: GoogleFonts.inter(
+                color: KulmisAuthTheme.textMuted,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
           ),
         ],
       ),

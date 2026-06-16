@@ -13,6 +13,7 @@ import '../../core/l10n/locale_provider.dart';
 import '../../core/l10n/nav_l10n.dart';
 import '../../core/l10n/sidebar_locale_menu.dart';
 import '../../core/store_context.dart';
+import '../../core/support/support_whatsapp.dart';
 import '../../data/local/store_settings_provider.dart';
 import '../widgets/platform_brand_logo.dart';
 import '../../features/auth/application/session_provider.dart';
@@ -360,6 +361,16 @@ class _Sidebar extends ConsumerWidget {
                           ),
                         ),
                       ),
+                    _SidebarFooterAction(
+                      collapsed: collapsed,
+                      icon: Icons.chat_outlined,
+                      label: l10n.supportWhatsAppTitle,
+                      onTap: () => SupportWhatsApp.openChatOrSnackBar(
+                        context,
+                        message: l10n.supportWhatsAppPrefill,
+                        unavailableMessage: l10n.supportWhatsAppUnavailable,
+                      ),
+                    ),
                     _SidebarFooterAction(
                       collapsed: collapsed,
                       icon: Icons.settings_outlined,
