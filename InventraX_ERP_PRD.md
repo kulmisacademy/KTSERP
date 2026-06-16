@@ -1,9 +1,9 @@
-# InventraX ERP — Product Requirements Document (PRD)
+# KULMIS ERP — Product Requirements Document (PRD)
 
 **Version:** 1.0.0  
 **Status:** Draft  
 **Last Updated:** 2026-05-26  
-**Document Owner:** InventraX Product Team  
+**Document Owner:** KULMIS ERP Product Team  
 **Classification:** Confidential
 
 ---
@@ -47,11 +47,11 @@
 
 ## 1. Executive Summary
 
-InventraX ERP is a **cloud-native, offline-first, multi-tenant SaaS ERP platform** designed to power retail businesses across Africa and emerging markets. It combines Point of Sale (POS), Inventory Management, Purchase Management, Expense Tracking, Debt Management, and Lite Accounting into one unified, fast, and mobile-friendly application.
+KULMIS ERP is a **cloud-native, offline-first, multi-tenant SaaS ERP platform** designed to power retail businesses across Africa and emerging markets. It combines Point of Sale (POS), Inventory Management, Purchase Management, Expense Tracking, Debt Management, and Lite Accounting into one unified, fast, and mobile-friendly application.
 
 The platform is engineered to support **30,000+ stores simultaneously**, with real-time cloud sync, robust offline capabilities, and a powerful Super Admin SaaS management layer. It is built on Flutter (multi-platform frontend) and Supabase/PostgreSQL (backend), using Riverpod for state management and Drift/Isar for local offline storage.
 
-InventraX ERP is positioned as the **go-to ERP solution for retail businesses** that require enterprise-grade features at an accessible price point, with specific optimizations for Somalia and East African market conditions including support for local mobile money payment systems (EVC Plus, Zaad, Sahal, Edahab).
+KULMIS ERP is positioned as the **go-to ERP solution for retail businesses** that require enterprise-grade features at an accessible price point, with specific optimizations for Somalia and East African market conditions including support for local mobile money payment systems (EVC Plus, Zaad, Sahal, Edahab).
 
 ---
 
@@ -123,7 +123,7 @@ InventraX ERP is positioned as the **go-to ERP solution for retail businesses** 
 - Pain points: No unified financial view, manual data entry
 
 #### Persona D — Platform Admin (SaaS Owner)
-- Manages the entire InventraX platform
+- Manages the entire KULMIS ERP platform
 - Needs: Subscription management, store monitoring, revenue analytics
 - Pain points: No visibility into store health, manual subscription handling
 
@@ -1451,7 +1451,7 @@ CREATE INDEX idx_inventory_product ON inventory_movements (product_id, created_a
 
 | Term | Definition |
 |------|-----------|
-| **Tenant** | A subscription holder on the InventraX platform. May own one or more stores. |
+| **Tenant** | A subscription holder on the KULMIS ERP platform. May own one or more stores. |
 | **Store** | A single business unit (e.g., one shop location). Each store has independent data. |
 | **RLS** | Row Level Security — PostgreSQL feature that restricts data access at the row level. |
 | **MRR** | Monthly Recurring Revenue — total subscription revenue per month. |
@@ -1478,6 +1478,6 @@ CREATE INDEX idx_inventory_product ON inventory_movements (product_id, created_a
 
 ---
 
-**Prepared by:** InventraX Product Team  
+**Prepared by:** KULMIS ERP Product Team  
 **Review Status:** Pending Engineering Review  
 **Next Review Date:** 2026-06-15

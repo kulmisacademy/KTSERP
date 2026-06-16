@@ -64,7 +64,7 @@ class ProductsPage extends ConsumerStatefulWidget {
       return;
     }
     final settings = ref.read(storeSettingsProvider).value;
-    final storeName = settings?.storeName ?? 'InventraX';
+    final storeName = settings?.storeName ?? 'KULMIS ERP';
 
     final name = TextEditingController(text: existing?.name ?? '');
     final secondary = TextEditingController(text: existing?.secondaryName ?? '');

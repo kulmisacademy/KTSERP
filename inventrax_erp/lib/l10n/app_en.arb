@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
-  "appTitle": "InventraX ERP",
-  "brandName": "InventraX",
+  "appTitle": "KULMIS ERP",
+  "brandName": "KULMIS ERP",
 
   "navDashboard": "Dashboard",
   "navPos": "POS",
@@ -394,7 +394,7 @@
   "onboardingContinue": "Continue",
 
   "registerStoreTitle": "Create your store",
-  "registerStoreSubtitle": "Start your InventraX trial",
+  "registerStoreSubtitle": "Start your KULMIS ERP trial",
 
   "welcomeGetStarted": "Get started",
   "welcomeSignIn": "Sign in",
@@ -486,7 +486,7 @@
   "reportsSalesCount": "Sales count",
   "reportsExportPdf": "Export PDF",
   "reportsExportCsv": "Export CSV",
-  "reportsShareCsvText": "InventraX report (CSV)",
+  "reportsShareCsvText": "KULMIS ERP report (CSV)",
   "reportsSaleItems": "Items: {count} • {id}",
   "@reportsSaleItems": {"placeholders": {"count": {"type": "int"}, "id": {"type": "String"}}},
   "reportsLineItemDetail": "x{qty} @ {unit} (cost {cost})",
@@ -564,7 +564,7 @@
   "rememberMe": "Remember me",
   "rememberMeSubtitle": "Stay signed in on this device",
   "signingIn": "Signing in…",
-  "newToInventraX": "New to InventraX?",
+  "newToInventraX": "New to KULMIS ERP?",
   "registerYourStore": "Register your store",
   "backToWelcome": "Back to welcome",
   "authSupabaseSecured": "Secured with Supabase Auth and tenant isolation.",

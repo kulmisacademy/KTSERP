@@ -2,7 +2,7 @@
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
-Write-Host "=== InventraX / KULMIS ERP — Vercel setup ===" -ForegroundColor Cyan
+Write-Host "=== KULMIS ERP — Vercel setup ===" -ForegroundColor Cyan
 Write-Host "This project is Flutter web (NOT Next.js)." -ForegroundColor Yellow
 Write-Host ""
 

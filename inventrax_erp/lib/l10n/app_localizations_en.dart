@@ -9,10 +9,10 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'InventraX ERP';
+  String get appTitle => 'KULMIS ERP';
 
   @override
-  String get brandName => 'InventraX';
+  String get brandName => 'KULMIS ERP';
 
   @override
   String get navDashboard => 'Dashboard';
@@ -1094,7 +1094,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registerStoreTitle => 'Create your store';
 
   @override
-  String get registerStoreSubtitle => 'Start your InventraX trial';
+  String get registerStoreSubtitle => 'Start your KULMIS ERP trial';
 
   @override
   String get welcomeGetStarted => 'Get started';
@@ -1350,7 +1350,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsExportCsv => 'Export CSV';
 
   @override
-  String get reportsShareCsvText => 'InventraX report (CSV)';
+  String get reportsShareCsvText => 'KULMIS ERP report (CSV)';
 
   @override
   String reportsSaleItems(int count, String id) {
@@ -1548,7 +1548,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signingIn => 'Signing in…';
 
   @override
-  String get newToInventraX => 'New to InventraX?';
+  String get newToInventraX => 'New to KULMIS ERP?';
 
   @override
   String get registerYourStore => 'Register your store';

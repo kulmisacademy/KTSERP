@@ -27,7 +27,7 @@ class PdfReportService {
             )
           else ...[
             pw.Text(
-              'InventraX — Report',
+              'KULMIS ERP — Report',
               style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
             ),
             pw.SizedBox(height: 4),

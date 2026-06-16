@@ -8,6 +8,8 @@ import 'package:inventrax_erp/l10n/app_localizations.dart';
 
 
 
+import '../core/env_config.dart';
+
 import '../core/l10n/fallback_platform_localizations.dart';
 
 import '../core/l10n/l10n_dev_banner.dart';
@@ -50,7 +52,7 @@ class InventraXApp extends ConsumerWidget {
 
     return MaterialApp.router(
 
-      title: 'InventraX ERP',
+      title: EnvConfig.appName,
 
       theme: InventraXTheme.light(),
 

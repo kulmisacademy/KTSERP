@@ -31,7 +31,7 @@ class EnvConfig {
       case 'SUPABASE_ANON_KEY':
         return const String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
       case 'APP_NAME':
-        return const String.fromEnvironment('APP_NAME', defaultValue: 'InventraX ERP');
+        return const String.fromEnvironment('APP_NAME', defaultValue: 'KULMIS ERP');
       case 'APP_ENV':
         return const String.fromEnvironment('APP_ENV', defaultValue: 'development');
       case 'API_TIMEOUT':
@@ -65,7 +65,7 @@ class EnvConfig {
 
   static String get supabaseUrl => _get('SUPABASE_URL');
   static String get supabaseAnonKey => _get('SUPABASE_ANON_KEY');
-  static String get appName => _get('APP_NAME', defaultValue: 'InventraX ERP');
+  static String get appName => _get('APP_NAME', defaultValue: 'KULMIS ERP');
   static String get appEnv => _get('APP_ENV', defaultValue: 'development');
   static int get apiTimeoutMs => int.tryParse(_get('API_TIMEOUT')) ?? 30000;
   static bool get enableLogs => _get('ENABLE_LOGS').toLowerCase() != 'false';

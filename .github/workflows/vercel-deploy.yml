@@ -45,7 +45,7 @@ jobs:
           cat > .env <<EOF
           SUPABASE_URL=$SUPABASE_URL
           SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
-          APP_NAME=InventraX ERP
+          APP_NAME=KULMIS ERP
           APP_ENV=production
           API_TIMEOUT=30000
           ENABLE_LOGS=false

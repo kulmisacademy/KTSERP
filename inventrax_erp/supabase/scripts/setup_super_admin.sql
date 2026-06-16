@@ -1,5 +1,5 @@
 -- =============================================================================
--- InventraX: Create Super Admin profile (fixes "No store linked to this account")
+-- KULMIS ERP: Create Super Admin profile (fixes "No store linked to this account")
 -- Run in: Supabase Dashboard → SQL Editor → Run
 -- Prerequisite: User exists under Authentication → Users with this email
 -- =============================================================================
@@ -27,7 +27,7 @@ BEGIN
   );
 
   INSERT INTO tenants (id, name, country, currency_code, status)
-  VALUES (v_tenant_id, 'InventraX Platform', '', 'USD', 'active')
+  VALUES (v_tenant_id, 'KULMIS ERP Platform', '', 'USD', 'active')
   ON CONFLICT (id) DO NOTHING;
 
   INSERT INTO stores (id, tenant_id, name, business_type, country, currency_code, status)

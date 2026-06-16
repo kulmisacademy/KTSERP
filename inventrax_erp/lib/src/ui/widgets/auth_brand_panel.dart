@@ -48,7 +48,7 @@ class AuthBrandPanel extends StatelessWidget {
             SizedBox(height: gap * 0.75),
             if (title == null) ...[
               Text(
-                'InventraX',
+                'KULMIS',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 40,

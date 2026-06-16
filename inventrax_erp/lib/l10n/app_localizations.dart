@@ -103,13 +103,13 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'InventraX ERP'**
+  /// **'KULMIS ERP'**
   String get appTitle;
 
   /// No description provided for @brandName.
   ///
   /// In en, this message translates to:
-  /// **'InventraX'**
+  /// **'KULMIS ERP'**
   String get brandName;
 
   /// No description provided for @navDashboard.
@@ -2161,7 +2161,7 @@ abstract class AppLocalizations {
   /// No description provided for @registerStoreSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Start your InventraX trial'**
+  /// **'Start your KULMIS ERP trial'**
   String get registerStoreSubtitle;
 
   /// No description provided for @welcomeGetStarted.
@@ -2611,7 +2611,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportsShareCsvText.
   ///
   /// In en, this message translates to:
-  /// **'InventraX report (CSV)'**
+  /// **'KULMIS ERP report (CSV)'**
   String get reportsShareCsvText;
 
   /// No description provided for @reportsSaleItems.
@@ -2941,7 +2941,7 @@ abstract class AppLocalizations {
   /// No description provided for @newToInventraX.
   ///
   /// In en, this message translates to:
-  /// **'New to InventraX?'**
+  /// **'New to KULMIS ERP?'**
   String get newToInventraX;
 
   /// No description provided for @registerYourStore.

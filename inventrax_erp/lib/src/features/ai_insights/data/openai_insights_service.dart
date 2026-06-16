@@ -14,7 +14,7 @@ class OpenAiInsightsService {
   const OpenAiInsightsService();
 
   static const _systemPrompt = '''
-You are InventraX AI — an expert retail ERP business analyst for store owners.
+You are KULMIS ERP AI — an expert retail ERP business analyst for store owners.
 You receive ONLY pre-aggregated JSON metrics (never raw transactions).
 Respond with valid JSON only (no markdown fences) using this schema:
 {

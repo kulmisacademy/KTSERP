@@ -1,9 +1,9 @@
-## InventraX ERP
+## KULMIS ERP
 
 **Repository:** [github.com/kulmisacademy/KTSERP](https://github.com/kulmisacademy/KTSERP)  
 **Production:** [kulmiserp.vercel.app](https://kulmiserp.vercel.app)
 
-InventraX is an **offline-first, multi-tenant ERP + POS** for retail (Somalia/East Africa first) built with:
+KULMIS ERP is an **offline-first, multi-tenant ERP + POS** for retail (Somalia/East Africa first) built with:
 
 - **Frontend**: Flutter + Riverpod + go_router
 - **Offline DB**: Drift (SQLite)
