@@ -1,21 +1,24 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import 'src/app/app.dart';
+import 'src/app/boot_gate.dart';
 import 'src/core/env_config.dart';
-import 'src/data/local/db_provider.dart';
-import 'src/observability/monitoring_bootstrap.dart';
-import 'src/sync/supabase_bootstrap.dart';
+import 'src/core/startup/startup_profiler.dart';
 
 Future<void> main() async {
+  StartupProfiler.mark('main() start');
   WidgetsFlutterBinding.ensureInitialized();
-  await EnvConfig.load();
+  StartupProfiler.mark('flutter binding ready');
+
+  // Only the env load is awaited before runApp — everything else (Supabase,
+  // DB, monitoring) is initialized in the background inside [BootGate] so the
+  // first frame paints immediately instead of waiting on network/IO.
+  await StartupProfiler.track('env load', EnvConfig.load);
 
   final dsn = EnvConfig.sentryDsn;
   if (dsn.isEmpty) {
-    await _runApp();
+    _runApp();
     return;
   }
 
@@ -27,26 +30,14 @@ Future<void> main() async {
       options.tracesSampleRate = kDebugMode ? 0.0 : 0.2;
       options.attachScreenshot = true;
     },
-    appRunner: () async {
-      await _runApp();
-    },
+    appRunner: _runApp,
   );
 }
 
-Future<void> _runApp() async {
+void _runApp() {
   _installMouseTrackerGuard();
-  // Supabase init and DB open are independent — run them concurrently so the
-  // first frame paints sooner. The HTML splash covers this window.
-  await Future.wait<void>([
-    MonitoringBootstrap.init(),
-    initSupabaseIfConfigured(),
-    openAppDatabase(),
-  ]);
-  runApp(
-    SentryWidget(
-      child: const ProviderScope(child: InventraXApp()),
-    ),
-  );
+  StartupProfiler.mark('runApp(BootGate)');
+  runApp(const BootGate());
 }
 
 /// Suppresses recursive MouseTracker assertion spam on Flutter Web during dev.

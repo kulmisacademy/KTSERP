@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Breakpoints: mobile &lt; 768, tablet 768–1199, desktop ≥ 1200.
+/// Breakpoints: mobile &lt; 600, tablet 600–1023, desktop ≥ 1024.
 abstract final class Responsive {
-  static const mobileBreakpoint = 768.0;
-  static const tabletBreakpoint = 1200.0;
+  static const mobileBreakpoint = 600.0;
+  static const tabletBreakpoint = 1024.0;
 
   static bool isMobile(BuildContext context) =>
       MediaQuery.sizeOf(context).width < mobileBreakpoint;
@@ -31,8 +31,10 @@ abstract final class Responsive {
       isMobile(context) ? 12 : 24;
 
   static int gridCrossCount(BuildContext context) {
-    if (isMobile(context)) return 2;
-    if (isTablet(context)) return 3;
+    final w = MediaQuery.sizeOf(context).width;
+    if (w < mobileBreakpoint) return 2;
+    if (w < tabletBreakpoint) return 3;
+    if (w < 1440) return 4;
     return 5;
   }
 

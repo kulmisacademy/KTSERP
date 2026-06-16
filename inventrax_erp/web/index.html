@@ -5,7 +5,12 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+  <!-- Lock the layout viewport to the device width. Without user-scalable=no /
+       maximum-scale=1.0, in-app browsers (Facebook Lite, Messenger, Android
+       WebView) zoom out and render the desktop layout squeezed into the phone. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="HandheldFriendly" content="true">
+  <meta name="format-detection" content="telephone=no">
   <meta name="description" content="KULMIS ERP — offline-first retail POS and inventory.">
   <meta name="theme-color" content="#061426">
 
@@ -26,9 +31,17 @@
     html, body {
       margin: 0;
       padding: 0;
+      width: 100%;
       height: 100%;
+      overflow: hidden;
       background-color: #061426;
       overscroll-behavior: none;
+      /* Stop in-app browsers (Facebook/WebView) from auto-resizing text, which
+         breaks the Flutter layout scaling. */
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     /* Branded splash — paints instantly, no white flash, no asset dependency. */
